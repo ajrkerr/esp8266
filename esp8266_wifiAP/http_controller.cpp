@@ -3,6 +3,7 @@
 HttpController::HttpController(ESPAutoConf *newAutoConf, PixelConfig *newPixelConfig) {
   autoConf = newAutoConf;
   pixelConfig = newPixelConfig;
+  PixelController controller(&Serial);
 }
 
 void HttpController::setup() {
@@ -17,9 +18,9 @@ void HttpController::loop() {
 String HttpController::wifiConfigForm() {
   String html = "<form action='/wifi_config' method='POST'>";
   html += "<h2>Wifi Config</h2>";
-  html += "<div class='form-group'><label for='ssid'>SSID: </label><input class='form-control' name='ssid' maxlength='32' value='"; html += autoConf->getSSID(); html += "' /></div>";
-  html += "<div class='form-group'><label for='password'>Password: </label><input class='form-control' name='password' value='"; html += autoConf->getPassword(); html += "' /></div>";
-  html += "<div class='form-group'><label for='hostname'>Hostname: </label><input class='form-control' name='hostname' value='"; html += autoConf->getHostname(); html += "' /></div>";
+  html += "<div class='form-group'><label for='ssid'>SSID: </label><input class='form-control' name='ssid' maxlength='32' value='"; html += wifiConfig.ssid; html += "' /></div>";
+  html += "<div class='form-group'><label for='password'>Password: </label><input class='form-control' name='password' value='"; html += wifiConfig.password; html += "' /></div>";
+  html += "<div class='form-group'><label for='hostname'>Hostname: </label><input class='form-control' name='hostname' value='"; html += wifiConfig.hostname; html += "' /></div>";
   html += "<input class='btn btn-success' type='submit' /></form>";
 
   return html;
@@ -48,11 +49,13 @@ void HttpController::setupPages() {
     String ssid = httpServer.arg("ssid");
     ssid.replace('+', ' ');
     
-    autoConf->setSSID(ssid);
-    autoConf->setPassword(httpServer.arg("password"));
-    autoConf->setHostname(httpServer.arg("hostname"));
+    ssid.toCharArray(wifiConfig.ssid, sizeof(wifiConfig.ssid));
+    httpServer.arg("password").toCharArray(wifiConfig.password, sizeof(wifiConfig.password));
+    httpServer.arg("hostname").toCharArray(wifiConfig.hostname, sizeof(wifiConfig.hostname));
 
-    autoConf->persistConfig();
+    autoConf->setConfig(&wifiConfig);
+    autoConf->reconnect();
+    WifiConfigRepository.persist(&wifiConfig);
 
     httpServer.send(200, "text/html", layout(layout(wifiConfigForm() + pixelConfigForm())));
 
@@ -91,8 +94,13 @@ void HttpController::setupPages() {
     DEBUG_PRINTLN2(pixelConfig->primaryColor.blue, DEC);
 
     PixelConfigRepository.persist(pixelConfig);
-    PixelController.send(pixelConfig);
+    controller.send(pixelConfig);
 
+    httpServer.send(200, "text/html", layout(layout(wifiConfigForm() + pixelConfigForm())));
+  });
+
+  httpServer.on("/resend", HTTP_GET, [this] () {
+    controller.send(pixelConfig);
     httpServer.send(200, "text/html", layout(layout(wifiConfigForm() + pixelConfigForm())));
   });
 

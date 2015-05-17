@@ -7,8 +7,8 @@
 
 class RepositoryClass {
 public:
-  void persist(int start_address, int size, char *structure);
-  void load(int start_address, int size, char *structure);
+  void persist(int start_address, int size, void *structure);
+  bool load(int start_address, int size, void *structure);
 };
 
 extern RepositoryClass Repository;

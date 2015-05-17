@@ -21,13 +21,10 @@ class ESPAutoConf {
 public:
   ESPAutoConf();
 
-  void setup(char *configurationHostname);
-  void setup();
+  void setup(WifiConfig *newConfig);
   void loop();
-
-  // Persistance Functions //
-  void persistConfig();
-  void loadConfig();
+  bool connect();
+  bool reconnect();
 
   void debugConfig();
 
@@ -35,15 +32,10 @@ public:
   char* getPassword();
   char* getHostname();
 
-  void setSSID(const char *ssid);
-  void setPassword(const char *password);
-  void setHostname(const char *hostname);
-
-  void setSSID(String ssid);
-  void setPassword(String password);
-  void setHostname(String hostname);
-
-  void setConfig(const WifiConfig newConfig);
+  void setConfig(const WifiConfig *newConfig);
+  void createAP();
+  bool connectToAP();
+  bool isConnected();
 
   IPAddress getIP();
 

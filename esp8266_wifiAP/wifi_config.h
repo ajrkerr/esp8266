@@ -5,6 +5,7 @@ typedef struct {
   char ssid[33];
   char password[65];
   char hostname[65];
+  bool access_point;
 } WifiConfig;
 
 #endif

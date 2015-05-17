@@ -3,18 +3,28 @@
 ESPAutoConf::ESPAutoConf() {
 }
 
-void ESPAutoConf::setup() {
-  setup((char*)DEFAULT_HOSTNAME);
+void ESPAutoConf::setup(WifiConfig *newConfig) {
+  setConfig(&config);
+  connect();
 }
 
-void ESPAutoConf::setup(char *configurationHostname) {
-  loadConfig();
-
-  if(connectWireless()) {
+bool ESPAutoConf::connect() {
+  if(config.access_point) {
+    connectToAP();
     setupMDNS();
   } else {
-    setupWifiAP(configurationHostname);
+    createAP();
   }
+
+  DEBUG_PRINT("IP is: ");
+  DEBUG_PRINTLN(WiFi.getIP());
+
+  return connected;
+}
+
+bool ESPAutoConf::reconnect() {
+  // disconnect
+  connect();
 }
 
 void ESPAutoConf::loop() {
@@ -22,23 +32,25 @@ void ESPAutoConf::loop() {
 }
 
 IPAddress ESPAutoConf::getIP() {
-  if(connected) {
-    return WiFi.localIP();
-  } else {
+  if(config.access_point) {
     return WiFi.softAPIP();
+  } else {
+    return WiFi.localIP();
   }
 }
 
-void ESPAutoConf::setupWifiAP(const char *ssid) {
+void ESPAutoConf::createAP() {
   DEBUG_PRINTLN("Going into AP Mode");
   DEBUG_PRINT("Setting up SSID: ");
   DEBUG_PRINTLN(ssid);
 
-  WiFi.softAP(ssid);
+  if(strlen(config.password) == 0) {
+    WiFi.softAP(config.ssid, config.password);
+  } else {
+    WiFi.softAP(config.ssid);
+  }
+  
   WiFi.mode(WIFI_AP);
-
-  DEBUG_PRINT("IP is: ");
-  DEBUG_PRINTLN(WiFi.softAPIP());
 }
 
 void ESPAutoConf::setupMDNS() {
@@ -56,7 +68,7 @@ void ESPAutoConf::setupMDNS() {
   }
 }
 
-bool ESPAutoConf::connectWireless() {
+bool ESPAutoConf::connectToAP() {
   DEBUG_PRINT("Connecting using: '");
   debugConfig();
     
@@ -83,18 +95,6 @@ bool ESPAutoConf::connectWireless() {
   return connected;
 }
 
-void ESPAutoConf::persistConfig() {
-  WifiConfigRepository.persist(&config);
-  DEBUG_PRINTLN("Persisted Config:");
-  debugConfig();
-}
-
-void ESPAutoConf::loadConfig() {
-  WifiConfigRepository.load(&config);
-  DEBUG_PRINTLN("Read Config:");
-  debugConfig();
-}
-
 void ESPAutoConf::debugConfig() {
   DEBUG_PRINT("SSID: ");
   DEBUG_PRINTLN(config.ssid);
@@ -116,35 +116,11 @@ char* ESPAutoConf::getHostname() {
   return config.hostname;
 }
 
-void ESPAutoConf::setSSID(const char *ssid) {
-  strncpy(config.ssid, ssid, sizeof(config.ssid));
+void ESPAutoConf::setConfig(const WifiConfig *newConfig) {
+  memcpy(&config, newConfig, sizeof(newConfig));
 }
 
-void ESPAutoConf::setPassword(const char *password) {
-  strncpy(config.password, password, sizeof(config.password));
+bool ESPAutoConf::isConnected() {
+  return connected;
 }
-
-void ESPAutoConf::setHostname(const char *hostname) {
-  strncpy(config.hostname, hostname, sizeof(config.hostname));
-}
-
-void ESPAutoConf::setSSID(String ssid) {
-  ssid.toCharArray(config.ssid, sizeof(config.ssid));
-}
-
-void ESPAutoConf::setPassword(String password) {
-  password.toCharArray(config.password, sizeof(config.password));
-}
-
-void ESPAutoConf::setHostname(String hostname) {
-  hostname.toCharArray(config.hostname, sizeof(config.hostname));
-}
-
-void ESPAutoConf::setConfig(const WifiConfig newConfig) {
-  strncpy(config.ssid, newConfig.ssid, sizeof(config.ssid));
-  strncpy(config.password, newConfig.password, sizeof(config.password));
-  strncpy(config.hostname, newConfig.hostname, sizeof(config.hostname));
-}
-
-
 
