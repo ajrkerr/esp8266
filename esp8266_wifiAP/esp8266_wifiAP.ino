@@ -7,11 +7,12 @@
 #define SERIAL_BAUD 115200
 #define DEBUG 0
 
-#include "ESPAutoConf.h"
+#include "wifi_wrapper.h"
 #include "pixel_config.h"
 #include "http_controller.h"
+#include "wifi_config_repository.h"
 
-ESPAutoConf autoConf;
+WifiWrapper autoConf;
 PixelConfig pixelConfig;
 HttpController httpController(&autoConf, &pixelConfig);
 WifiConfig wifiConfig;

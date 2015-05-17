@@ -1,7 +1,7 @@
 #include "http_controller.h"
 
-HttpController::HttpController(ESPAutoConf *newAutoConf, PixelConfig *newPixelConfig) {
-  autoConf = newAutoConf;
+HttpController::HttpController(WifiWrapper *newWifiWrapper, PixelConfig *newPixelConfig) {
+  wifiWrapper = newWifiWrapper;
   pixelConfig = newPixelConfig;
   PixelController controller(&Serial);
 }
@@ -53,8 +53,8 @@ void HttpController::setupPages() {
     httpServer.arg("password").toCharArray(wifiConfig.password, sizeof(wifiConfig.password));
     httpServer.arg("hostname").toCharArray(wifiConfig.hostname, sizeof(wifiConfig.hostname));
 
-    autoConf->setConfig(&wifiConfig);
-    autoConf->reconnect();
+    wifiWrapper->setConfig(&wifiConfig);
+    wifiWrapper->reconnect();
     WifiConfigRepository.persist(&wifiConfig);
 
     httpServer.send(200, "text/html", layout(layout(wifiConfigForm() + pixelConfigForm())));
@@ -106,7 +106,7 @@ void HttpController::setupPages() {
 
   httpServer.on("/status", HTTP_GET, [this] () {
     DEBUG_PRINTLN("GET Status");
-    httpServer.send(200, "text/html", layout((String)autoConf->getIP()));
+    httpServer.send(200, "text/html", layout((String)wifiWrapper->getIP()));
   });
 
   httpServer.on("/", HTTP_GET, [this] () {

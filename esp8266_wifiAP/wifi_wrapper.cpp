@@ -1,14 +1,11 @@
-#include "ESPAutoConf.h"
+#include "wifi_wrapper.h"
 
-ESPAutoConf::ESPAutoConf() {
-}
-
-void ESPAutoConf::setup(WifiConfig *newConfig) {
+void WifiWrapper::setup(WifiConfig *newConfig) {
   setConfig(&config);
   connect();
 }
 
-bool ESPAutoConf::connect() {
+bool WifiWrapper::connect() {
   if(config.access_point) {
     connectToAP();
     setupMDNS();
@@ -22,16 +19,16 @@ bool ESPAutoConf::connect() {
   return connected;
 }
 
-bool ESPAutoConf::reconnect() {
+bool WifiWrapper::reconnect() {
   // disconnect
   connect();
 }
 
-void ESPAutoConf::loop() {
+void WifiWrapper::loop() {
   mdnsServer.update();
 }
 
-IPAddress ESPAutoConf::getIP() {
+IPAddress WifiWrapper::getIP() {
   if(config.access_point) {
     return WiFi.softAPIP();
   } else {
@@ -39,7 +36,7 @@ IPAddress ESPAutoConf::getIP() {
   }
 }
 
-void ESPAutoConf::createAP() {
+void WifiWrapper::createAP() {
   DEBUG_PRINTLN("Going into AP Mode");
   DEBUG_PRINT("Setting up SSID: ");
   DEBUG_PRINTLN(ssid);
@@ -53,7 +50,7 @@ void ESPAutoConf::createAP() {
   WiFi.mode(WIFI_AP);
 }
 
-void ESPAutoConf::setupMDNS() {
+void WifiWrapper::setupMDNS() {
   DEBUG_PRINT("Setting up mDNS for: ");
   DEBUG_PRINT(config.hostname);
   DEBUG_PRINT(".local at ");
@@ -68,7 +65,7 @@ void ESPAutoConf::setupMDNS() {
   }
 }
 
-bool ESPAutoConf::connectToAP() {
+bool WifiWrapper::connectToAP() {
   DEBUG_PRINT("Connecting using: '");
   debugConfig();
     
@@ -95,7 +92,7 @@ bool ESPAutoConf::connectToAP() {
   return connected;
 }
 
-void ESPAutoConf::debugConfig() {
+void WifiWrapper::debugConfig() {
   DEBUG_PRINT("SSID: ");
   DEBUG_PRINTLN(config.ssid);
   DEBUG_PRINT("Password: ");
@@ -104,23 +101,23 @@ void ESPAutoConf::debugConfig() {
   DEBUG_PRINTLN(config.hostname);
 }
 
-char* ESPAutoConf::getSSID() {
+char* WifiWrapper::getSSID() {
   return config.ssid;
 }
 
-char* ESPAutoConf::getPassword() {
+char* WifiWrapper::getPassword() {
   return config.password;
 }
 
-char* ESPAutoConf::getHostname() {
+char* WifiWrapper::getHostname() {
   return config.hostname;
 }
 
-void ESPAutoConf::setConfig(const WifiConfig *newConfig) {
+void WifiWrapper::setConfig(const WifiConfig *newConfig) {
   memcpy(&config, newConfig, sizeof(newConfig));
 }
 
-bool ESPAutoConf::isConnected() {
+bool WifiWrapper::isConnected() {
   return connected;
 }
 

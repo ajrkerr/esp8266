@@ -1,26 +1,21 @@
-#ifndef ESPAUTOCONF_H
-#define ESPAUTOCONF_H
+#ifndef WIFI_WRAPPER_H
+#define WIFI_WRAPPER_H
 
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
 
 #include "wifi_config.h"
-#include "wifi_config_repository.h"
 #include "debug_utils.h"
 
 #define MAX_WIFI_ATTEMPTS 20
-#define DEFAULT_HOSTNAME "ConfigureESP8266"
-#define EEPROM_CONFIG_LOCATION 0
 
-class ESPAutoConf {
+class WifiWrapper {
   MDNSResponder mdnsServer;
   WifiConfig config;
   bool connected = false;
 
 public:
-  ESPAutoConf();
-
   void setup(WifiConfig *newConfig);
   void loop();
   bool connect();

@@ -7,7 +7,10 @@
 
 #include "ESP8266WebServer.h"
 
-#include "ESPAutoConf.h"
+#include "wifi_config.h"
+#include "wifi_wrapper.h"
+#include "wifi_config_repository.h"
+
 #include "pixel_controller.h"
 #include "pixel_config.h"
 #include "pixel_config_repository.h"
@@ -15,13 +18,13 @@
 
 class HttpController {
   WifiConfig wifiConfig;
-  ESPAutoConf *autoConf;
+  WifiWrapper *wifiWrapper;
   ESP8266WebServer httpServer;
   PixelConfig *pixelConfig;
   PixelController controller;
 
 public:
-  HttpController(ESPAutoConf *newAutoConf, PixelConfig *newPixelConfig);
+  HttpController(WifiWrapper *newWifiWrapper, PixelConfig *newPixelConfig);
 
   void setup();
   void loop();
