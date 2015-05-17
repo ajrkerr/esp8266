@@ -2,6 +2,7 @@
 #define PIXEL_CONTROLLER_H
 
 #include "pixel_config.h"
+#include "checksum.h"
 
 class PixelController {
   const char *preamble = "12345"; //arbitrary
@@ -23,6 +24,7 @@ public:
     
     serial->write(preamble, sizeof(preamble));
     serial->write(buffer, sizeof(*config));
+    serial->write(Checksum.calculate(buffer, sizeof(buffer)));
     serial->write(postamble, sizeof(postamble));
   }
 };

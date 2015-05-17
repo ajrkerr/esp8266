@@ -1,4 +1,3 @@
-#include "calculate_checksum.h"
 #include "Repository.h"
 
 void RepositoryClass::persist(int start_address, int size, void *structure) {
@@ -10,7 +9,7 @@ void RepositoryClass::persist(int start_address, int size, void *structure) {
     EEPROM.write(start_address + i, cStructure[i]);
   }
 
-  EEPROM.write(start_address + size, calculate_checksum(structure, size));
+  EEPROM.write(start_address + size, Checksum.calculate(structure, size));
 
   EEPROM.commit();
   EEPROM.end();
@@ -28,7 +27,7 @@ bool RepositoryClass::load(int start_address, int size, void *structure) {
 
   EEPROM.end();
 
-  return checksum == calculate_checksum(structure, size);
+  return checksum == Checksum.calculate(structure, size);
 }
 
 RepositoryClass Repository;

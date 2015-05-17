@@ -2,6 +2,7 @@
 #define REPOSITORY_H
 
 #include <EEPROM.h>
+#include "checksum.h"
 
 #define BLOCK_SIZE 512
 
