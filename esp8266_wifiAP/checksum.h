@@ -8,7 +8,7 @@ public:
     char checksum = 0x00;
 
     for(int i = 0; i < size; i++) {
-      checksum ^= cData[i];
+      checksum = checksum ^ cData[i];
     }
 
     return checksum;

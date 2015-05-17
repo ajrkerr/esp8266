@@ -4,7 +4,7 @@
 #include <EEPROM.h>
 
 #define MAX_WIFI_ATTEMPTS 20
-#define SERIAL_BAUD 115200
+#define SERIAL_BAUD 9600
 #define DEBUG 0
 
 #include "wifi_wrapper.h"
@@ -12,27 +12,28 @@
 #include "http_controller.h"
 #include "wifi_config_repository.h"
 
-WifiWrapper autoConf;
+WifiWrapper wifiWrapper;
 PixelConfig pixelConfig;
-HttpController httpController(&autoConf, &pixelConfig);
+HttpController httpController(&wifiWrapper, &pixelConfig);
 WifiConfig wifiConfig;
 
 void setup() {
   Serial.begin(SERIAL_BAUD);
   
-  setup_wifi();
+  setupWifi();
   
   PixelConfigRepository.load(&pixelConfig);
   httpController.setup();
+  httpController.setWifiConfig(&wifiConfig);
 }
 
-void setup_wifi() {
+void setupWifi() {
   loadWifiConfig();
-  autoConf.setup(&wifiConfig);
+  wifiWrapper.setup(&wifiConfig);
 
-  if(!autoConf.isConnected()) {
+  if(!wifiWrapper.isConnected()) {
     useDefaultWifiConfig();
-    autoConf.setup(&wifiConfig);
+    wifiWrapper.setup(&wifiConfig);
   }
 }
 
@@ -43,6 +44,7 @@ void loadWifiConfig() {
 }
 
 void useDefaultWifiConfig() {
+  DEBUG_PRINTLN("Using default config");
   strncpy(wifiConfig.ssid, "ConfigureESP8266", sizeof(wifiConfig.ssid));
   strncpy(wifiConfig.password, "", sizeof(wifiConfig.password));
   strncpy(wifiConfig.hostname, "esp8266", sizeof(wifiConfig.hostname));
@@ -50,6 +52,6 @@ void useDefaultWifiConfig() {
 }
 
 void loop() {
-  autoConf.loop();
+  wifiWrapper.loop();
   httpController.loop();
 }

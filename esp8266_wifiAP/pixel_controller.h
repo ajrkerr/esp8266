@@ -5,8 +5,8 @@
 #include "checksum.h"
 
 class PixelController {
-  const char *preamble = "12345"; //arbitrary
-  const char *postamble = "54321"; //arbitrary
+  const char *preamble = "123"; //arbitrary
+  const char *postamble = "321"; //arbitrary
 
   HardwareSerial *serial;
 
@@ -22,10 +22,10 @@ public:
   void send(PixelConfig *config) {
     char *buffer = (char*)config;
     
-    serial->write(preamble, sizeof(preamble));
+    serial->write(preamble, strlen(preamble));
     serial->write(buffer, sizeof(*config));
-    serial->write(Checksum.calculate(buffer, sizeof(buffer)));
-    serial->write(postamble, sizeof(postamble));
+    serial->write(Checksum.calculate(buffer, sizeof(*config)));
+    serial->write(postamble, strlen(postamble));
   }
 };
 

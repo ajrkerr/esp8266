@@ -1,6 +1,8 @@
 #ifndef DEBUG_UTILS_H
 #define DEBUG_UTILS_H
 
+#define DEBUG 0
+
 #if DEBUG
 #define DEBUG_PRINT(str) Serial.print(str)
 #define DEBUG_PRINT2(str, opt) Serial.print(str, opt)

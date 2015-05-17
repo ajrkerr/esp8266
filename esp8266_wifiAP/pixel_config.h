@@ -8,7 +8,7 @@ typedef struct {
 } Color;
 
 typedef struct {
-  unsigned int numPixels;
+  char numPixels;
   Color primaryColor;
 } PixelConfig;
 

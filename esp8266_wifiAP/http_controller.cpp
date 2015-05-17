@@ -18,9 +18,9 @@ void HttpController::loop() {
 String HttpController::wifiConfigForm() {
   String html = "<form action='/wifi_config' method='POST'>";
   html += "<h2>Wifi Config</h2>";
-  html += "<div class='form-group'><label for='ssid'>SSID: </label><input class='form-control' name='ssid' maxlength='32' value='"; html += wifiConfig.ssid; html += "' /></div>";
-  html += "<div class='form-group'><label for='password'>Password: </label><input class='form-control' name='password' value='"; html += wifiConfig.password; html += "' /></div>";
-  html += "<div class='form-group'><label for='hostname'>Hostname: </label><input class='form-control' name='hostname' value='"; html += wifiConfig.hostname; html += "' /></div>";
+  html += "<div class='form-group'><label for='ssid'>SSID: </label><input class='form-control' name='ssid' maxlength='32' value='"; html += String(wifiConfig.ssid); html += "' /></div>";
+  html += "<div class='form-group'><label for='password'>Password: </label><input class='form-control' name='password' value='"; html += String(wifiConfig.password); html += "' /></div>";
+  html += "<div class='form-group'><label for='hostname'>Hostname: </label><input class='form-control' name='hostname' value='"; html += String(wifiConfig.hostname); html += "' /></div>";
   html += "<input class='btn btn-success' type='submit' /></form>";
 
   return html;
@@ -29,10 +29,10 @@ String HttpController::wifiConfigForm() {
 String HttpController::pixelConfigForm() {
   String html = "<form action='/pixel_config' method='POST'>";
   html += "<h2>Pixel Config</h2>";
-  html += "<div class='form-group'><label for='red'>Number of Pixels: </label><input class='form-control' name='numPixels' maxlength='32' value='"; html += pixelConfig->numPixels; html += "' /></div>";
-  html += "<div class='form-group'><label for='red'>Red: </label><input class='form-control' name='red' maxlength='32' value='"; html += pixelConfig->primaryColor.red; html += "' /></div>";
-  html += "<div class='form-group'><label for='green'>Green: </label><input class='form-control' name='green' value='"; html += pixelConfig->primaryColor.green; html += "' /></div>";
-  html += "<div class='form-group'><label for='blue'>Blue: </label><input class='form-control' name='blue' value='"; html += pixelConfig->primaryColor.blue; html += "' /></div>";
+  html += "<div class='form-group'><label for='red'>Number of Pixels: </label><input class='form-control' name='numPixels' maxlength='32' value='"; html += String((int)pixelConfig->numPixels); html += "' /></div>";
+  html += "<div class='form-group'><label for='red'>Red: </label><input class='form-control' name='red' maxlength='32' value='"; html += String((int)pixelConfig->primaryColor.red); html += "' /></div>";
+  html += "<div class='form-group'><label for='green'>Green: </label><input class='form-control' name='green' value='"; html += String((int)pixelConfig->primaryColor.green); html += "' /></div>";
+  html += "<div class='form-group'><label for='blue'>Blue: </label><input class='form-control' name='blue' value='"; html += String((int)pixelConfig->primaryColor.blue); html += "' /></div>";
   html += "<input class='btn btn-success' type='submit' /></form>";
 
   return html;
@@ -49,9 +49,9 @@ void HttpController::setupPages() {
     String ssid = httpServer.arg("ssid");
     ssid.replace('+', ' ');
     
-    ssid.toCharArray(wifiConfig.ssid, sizeof(wifiConfig.ssid));
-    httpServer.arg("password").toCharArray(wifiConfig.password, sizeof(wifiConfig.password));
-    httpServer.arg("hostname").toCharArray(wifiConfig.hostname, sizeof(wifiConfig.hostname));
+    ssid.toCharArray(wifiConfig.ssid, strlen(wifiConfig.ssid));
+    httpServer.arg("password").toCharArray(wifiConfig.password, strlen(wifiConfig.password));
+    httpServer.arg("hostname").toCharArray(wifiConfig.hostname, strlen(wifiConfig.hostname));
 
     wifiWrapper->setConfig(&wifiConfig);
     wifiWrapper->reconnect();
@@ -70,18 +70,18 @@ void HttpController::setupPages() {
 
   httpServer.on("/pixel_config", HTTP_POST, [this] () mutable {
     DEBUG_PRINTLN("POST Pixel Configure");
-    char buffer[3];
+    char buffer[4];
 
-    httpServer.arg("numPixels").toCharArray(buffer, 3);
-    pixelConfig->numPixels = atoi(buffer);
+    httpServer.arg("numPixels").toCharArray(buffer, 4);
+    pixelConfig->numPixels = (char)atoi(buffer);
 
-    httpServer.arg("red").toCharArray(buffer, 3);
+    httpServer.arg("red").toCharArray(buffer, 4);
     pixelConfig->primaryColor.red = atoi(buffer);
 
-    httpServer.arg("green").toCharArray(buffer, 3);
+    httpServer.arg("green").toCharArray(buffer, 4);
     pixelConfig->primaryColor.green = atoi(buffer);
 
-    httpServer.arg("blue").toCharArray(buffer, 3);
+    httpServer.arg("blue").toCharArray(buffer, 4);
     pixelConfig->primaryColor.blue = atoi(buffer);
 
     DEBUG_PRINT("Number of Pixels: ");
@@ -134,4 +134,8 @@ String HttpController::footer() {
 
 String HttpController::layout(String contents) {
   return header() + contents + footer();
+}
+
+void HttpController::setWifiConfig(const WifiConfig *newConfig) {
+  memcpy(&wifiConfig, newConfig, sizeof(wifiConfig));
 }

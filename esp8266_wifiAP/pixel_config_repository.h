@@ -12,8 +12,12 @@ public:
     Repository.persist(PIXEL_CONFIG_LOCATION, sizeof(*config), (char*)config);
   }
 
-  void load(PixelConfig *config) {
-   Repository.load(PIXEL_CONFIG_LOCATION, sizeof(*config), (char*)config);
+  bool load(PixelConfig *config) {
+    if(Repository.load(PIXEL_CONFIG_LOCATION, sizeof(*config), (char*)config))
+      return true;
+
+    memset(config, 0x00, sizeof(*config));
+    return false;
   }
 };
 

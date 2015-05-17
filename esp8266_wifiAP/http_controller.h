@@ -33,7 +33,8 @@ public:
   String pixelConfigForm();
   
   void setupPages();
-
+  void setWifiConfig(const WifiConfig *newConfig);
+  
 private:
   String header();
   String footer();

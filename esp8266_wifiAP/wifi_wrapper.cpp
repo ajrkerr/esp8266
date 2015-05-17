@@ -1,26 +1,24 @@
 #include "wifi_wrapper.h"
 
 void WifiWrapper::setup(WifiConfig *newConfig) {
-  setConfig(&config);
+  setConfig(newConfig);
   connect();
 }
 
 bool WifiWrapper::connect() {
-  if(config.access_point) {
-    connectToAP();
+  if(!config.access_point && connectToAP()) {
     setupMDNS();
   } else {
     createAP();
   }
 
   DEBUG_PRINT("IP is: ");
-  DEBUG_PRINTLN(WiFi.getIP());
+  DEBUG_PRINTLN(getIP());
 
   return connected;
 }
 
 bool WifiWrapper::reconnect() {
-  // disconnect
   connect();
 }
 
@@ -38,8 +36,7 @@ IPAddress WifiWrapper::getIP() {
 
 void WifiWrapper::createAP() {
   DEBUG_PRINTLN("Going into AP Mode");
-  DEBUG_PRINT("Setting up SSID: ");
-  DEBUG_PRINTLN(ssid);
+  debugConfig();
 
   if(strlen(config.password) == 0) {
     WiFi.softAP(config.ssid, config.password);
@@ -66,7 +63,7 @@ void WifiWrapper::setupMDNS() {
 }
 
 bool WifiWrapper::connectToAP() {
-  DEBUG_PRINT("Connecting using: '");
+  DEBUG_PRINTLN("Connecting using: ");
   debugConfig();
     
   WiFi.mode(WIFI_STA);
@@ -114,7 +111,7 @@ char* WifiWrapper::getHostname() {
 }
 
 void WifiWrapper::setConfig(const WifiConfig *newConfig) {
-  memcpy(&config, newConfig, sizeof(newConfig));
+  memcpy(&config, newConfig, sizeof(config));
 }
 
 bool WifiWrapper::isConnected() {
