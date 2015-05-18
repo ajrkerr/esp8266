@@ -16,6 +16,9 @@ WifiWrapper wifiWrapper;
 PixelConfig pixelConfig;
 HttpController httpController;
 WifiConfig wifiConfig;
+PixelController pixelController(&Serial);
+
+char buffer[6];
 
 void setup() {
   Serial.begin(SERIAL_BAUD);
@@ -23,7 +26,7 @@ void setup() {
   setupWifi();
 
   PixelConfigRepository.load(&pixelConfig);
-  httpController.setup(&wifiWrapper, &wifiConfig, &pixelConfig);
+  httpController.setup(&wifiWrapper, &pixelController, &wifiConfig, &pixelConfig);
 }
 
 void setupWifi() {
@@ -47,7 +50,22 @@ void useDefaultWifiConfig() {
   wifiConfig.access_point = true;
 }
 
+void addToBuffer(char c) {
+  for(int i = 0; i < 5; i++) {
+    buffer[i] = buffer[i+1];
+  }
+  buffer[5] = c;
+}
+
 void loop() {
   wifiWrapper.loop();
   httpController.loop();
+
+  if(Serial.available() > 0) {
+    addToBuffer(Serial.read());
+
+    if(strcmp(buffer, "RESEND") == 0) {
+      pixelController.send(&httpController.pixelConfig);
+    }
+  }
 }

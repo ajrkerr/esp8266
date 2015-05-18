@@ -15,7 +15,7 @@ PixelConfig pixelConfig;
 
 void initConfig() {
   pixelConfig.numPixels = 8;
-  pixelConfig.frameLength = 20;
+  pixelConfig.frameLength = 15;
   pixelConfig.type = PIXEL_FLAME;
   pixelConfig.primaryColor.red = 229;
   pixelConfig.primaryColor.green = 38;
@@ -25,6 +25,8 @@ void initConfig() {
 void setup() { 
   Serial.begin(SERIAL_BAUD);
   Serial2.begin(SERIAL_BAUD);
+
+  Serial2.println("RESEND");
   
   initConfig();
   driver.setup(&pixelConfig);
@@ -34,7 +36,6 @@ void loop() {
   receiver.loop();
   
   if(receiver.changed) {
-    Serial.println("Changed");
     debuConfig();
     driver.setConfig(&receiver.pixelConfig);
   }

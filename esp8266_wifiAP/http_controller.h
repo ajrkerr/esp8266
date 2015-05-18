@@ -18,17 +18,19 @@
 
 
 class HttpController {
-  WifiConfig *wifiConfig;
-  PixelConfig *pixelConfig;
+public:
+  WifiConfig wifiConfig;
+  PixelConfig pixelConfig;
 
+private:
   WifiWrapper *wifiWrapper;
   ESP8266WebServer httpServer;
 
-  PixelController pixelController;
+  PixelController *pixelController;
   PageBuilder pageBuilder;
 
 public:
-  void setup(WifiWrapper *newWifiWrapper, WifiConfig *newWifiConfig, PixelConfig *newPixelConfig);
+  void setup(WifiWrapper *newWifiWrapper, PixelController *newPixelController, WifiConfig *newWifiConfig, PixelConfig *newPixelConfig);
   void loop();
   
   void setWifiConfig(const WifiConfig *newConfig);

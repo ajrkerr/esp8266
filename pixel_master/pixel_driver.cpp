@@ -110,8 +110,6 @@ void PixelDriver::drawFrame() {
       double saturation = primarySaturation;
       double value = constrain(primaryValue + flameDelta[i], 0.0, 1.0);
 
-      Serial.println(hue);
-
       conv.hsvToRgb(hue, saturation, value, rgb);
       pixel.red = rgb[0];
       pixel.green = rgb[1];

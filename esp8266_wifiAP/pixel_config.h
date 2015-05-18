@@ -1,6 +1,8 @@
 #ifndef PIXEL_CONFIG_H
 #define PIXEL_CONFIG_H
 
+#include <Arduino.h>
+
 typedef struct {
   unsigned char red;
   unsigned char green;
@@ -15,10 +17,11 @@ enum Animation {
 };
 
 typedef struct {
-  unsigned char numPixels;
-  unsigned char frameLength;
-  unsigned char type;
-  // unsigned char stepsPerRainbow;
+  uint16_t numPixels;
+  uint16_t frameLength;
+  uint16_t stepsPerRainbow;
+
+  byte type;
 
   Color primaryColor;
   Color secondaryColor;
