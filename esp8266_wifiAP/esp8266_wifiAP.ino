@@ -19,9 +19,9 @@ WifiConfig wifiConfig;
 
 void setup() {
   Serial.begin(SERIAL_BAUD);
-  
+
   setupWifi();
-  
+
   PixelConfigRepository.load(&pixelConfig);
   httpController.setup();
   httpController.setWifiConfig(&wifiConfig);
@@ -31,14 +31,14 @@ void setupWifi() {
   loadWifiConfig();
   wifiWrapper.setup(&wifiConfig);
 
-  if(!wifiWrapper.isConnected()) {
+  if (!wifiWrapper.isConnected()) {
     useDefaultWifiConfig();
     wifiWrapper.setup(&wifiConfig);
   }
 }
 
 void loadWifiConfig() {
-  if(!WifiConfigRepository.load(&wifiConfig)) {
+  if (!WifiConfigRepository.load(&wifiConfig)) {
     useDefaultWifiConfig();
   }
 }

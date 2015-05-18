@@ -29,10 +29,24 @@ String HttpController::wifiConfigForm() {
 String HttpController::pixelConfigForm() {
   String html = "<form action='/pixel_config' method='POST'>";
   html += "<h2>Pixel Config</h2>";
-  html += "<div class='form-group'><label for='red'>Number of Pixels: </label><input class='form-control' name='numPixels' maxlength='32' value='"; html += String((int)pixelConfig->numPixels); html += "' /></div>";
-  html += "<div class='form-group'><label for='red'>Red: </label><input class='form-control' name='red' maxlength='32' value='"; html += String((int)pixelConfig->primaryColor.red); html += "' /></div>";
-  html += "<div class='form-group'><label for='green'>Green: </label><input class='form-control' name='green' value='"; html += String((int)pixelConfig->primaryColor.green); html += "' /></div>";
-  html += "<div class='form-group'><label for='blue'>Blue: </label><input class='form-control' name='blue' value='"; html += String((int)pixelConfig->primaryColor.blue); html += "' /></div>";
+  html += "<div class='form-group'><label for='frameLength'>Frame Length: </label><input class='form-control' name='frameLength' maxlength='32' value='"; html += String((int)pixelConfig->frameLength); html += "' /></div>";
+  html += "<div class='form-group'><label for='numPixels'>Number of Pixels: </label><input class='form-control' name='numPixels' maxlength='32' value='"; html += String((int)pixelConfig->numPixels); html += "' /></div>";
+  html += "<div class='form-group'><label for='type'>Animation Type: </label>";
+  html += "  <select class='form-control' name='type'>";
+  html += "    <option value='"; html += PIXEL_SOLID; html += "'"; html += (pixelConfig->type == PIXEL_SOLID) ? "selected" : ""; html += ">Solid</option>";
+  html += "    <option value='"; html += PIXEL_TRACER; html += "'"; html += (pixelConfig->type == PIXEL_TRACER) ? "selected" : ""; html += ">Tracer</option>";
+  html += "    <option value='"; html += PIXEL_RAINBOW; html += "'"; html += (pixelConfig->type == PIXEL_RAINBOW) ? "selected" : ""; html += ">Rainbow</option>";
+  html += "    <option value='"; html += PIXEL_FLAME; html += "'"; html += (pixelConfig->type == PIXEL_FLAME) ? "selected" : ""; html += ">Flame</option>";
+  html += "  </select>";
+  html += "</div>";
+  html += "<h4>Primary Color</h4>";
+  html += "<div class='form-group'><label for='primary-red'>Red: </label><input class='form-control' name='primary-red' value='"; html += String((int)pixelConfig->primaryColor.red); html += "' /></div>";
+  html += "<div class='form-group'><label for='primary-green'>Green: </label><input class='form-control' name='primary-green' value='"; html += String((int)pixelConfig->primaryColor.green); html += "' /></div>";
+  html += "<div class='form-group'><label for='primary-blue'>Blue: </label><input class='form-control' name='primary-blue' value='"; html += String((int)pixelConfig->primaryColor.blue); html += "' /></div>";
+  html += "<h4>Secondary Color</h4>";
+  html += "<div class='form-group'><label for='secondary-red'>Red: </label><input class='form-control' name='secondary-red' value='"; html += String((int)pixelConfig->secondaryColor.red); html += "' /></div>";
+  html += "<div class='form-group'><label for='secondary-green'>Green: </label><input class='form-control' name='secondary-green' value='"; html += String((int)pixelConfig->secondaryColor.green); html += "' /></div>";
+  html += "<div class='form-group'><label for='secondary-blue'>Blue: </label><input class='form-control' name='secondary-blue' value='"; html += String((int)pixelConfig->secondaryColor.blue); html += "' /></div>";
   html += "<input class='btn btn-success' type='submit' /></form>";
 
   return html;
@@ -70,28 +84,18 @@ void HttpController::setupPages() {
 
   httpServer.on("/pixel_config", HTTP_POST, [this] () mutable {
     DEBUG_PRINTLN("POST Pixel Configure");
-    char buffer[4];
 
-    httpServer.arg("numPixels").toCharArray(buffer, 4);
-    pixelConfig->numPixels = (char)atoi(buffer);
+    pixelConfig->frameLength = httpServer.arg("frameLength").toInt();
+    pixelConfig->numPixels = httpServer.arg("numPixels").toInt();
+    pixelConfig->type = (Animation)httpServer.arg("type").toInt();
 
-    httpServer.arg("red").toCharArray(buffer, 4);
-    pixelConfig->primaryColor.red = atoi(buffer);
+    pixelConfig->primaryColor.red = httpServer.arg("primary-red").toInt();
+    pixelConfig->primaryColor.green = httpServer.arg("primary-green").toInt();
+    pixelConfig->primaryColor.blue = httpServer.arg("primary-blue").toInt();
 
-    httpServer.arg("green").toCharArray(buffer, 4);
-    pixelConfig->primaryColor.green = atoi(buffer);
-
-    httpServer.arg("blue").toCharArray(buffer, 4);
-    pixelConfig->primaryColor.blue = atoi(buffer);
-
-    DEBUG_PRINT("Number of Pixels: ");
-    DEBUG_PRINTLN2(pixelConfig->numPixels, DEC);
-    DEBUG_PRINT("Red: ");
-    DEBUG_PRINTLN2(pixelConfig->primaryColor.red, DEC);
-    DEBUG_PRINT("Green: ");
-    DEBUG_PRINTLN2(pixelConfig->primaryColor.green, DEC);
-    DEBUG_PRINT("Blue: ");
-    DEBUG_PRINTLN2(pixelConfig->primaryColor.blue, DEC);
+    pixelConfig->secondaryColor.red = httpServer.arg("secondary-red").toInt();
+    pixelConfig->secondaryColor.green = httpServer.arg("secondary-green").toInt();
+    pixelConfig->secondaryColor.blue = httpServer.arg("secondary-blue").toInt();
 
     PixelConfigRepository.persist(pixelConfig);
     controller.send(pixelConfig);

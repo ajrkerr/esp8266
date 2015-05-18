@@ -12,20 +12,19 @@ bool SerialReceiver::addChar(char c) {
   for(int i = 0; i < bufferSize-1; i++) {
     serialBuffer[i] = serialBuffer[i+1];
   }
-
+  
   serialBuffer[bufferSize-1] = c;
 }
 
 bool SerialReceiver::containsMatch() {
   for(int i = 0; i < strlen(preamble); i++) {
     if(serialBuffer[i] != preamble[i]) {
-      DEBUG_PRINTLN2(serialBuffer[i], DEC);
       return false;
     }
   }
 
   for(int i = 0; i < strlen(postamble); i++) {
-    if(serialBuffer[bufferSize - i -1] != preamble[i]) {
+    if(serialBuffer[bufferSize - strlen(postamble) + i] != postamble[i]) {
       return false;
     }
   }
@@ -38,8 +37,6 @@ char* SerialReceiver::dataStart() {
 }
 
 void SerialReceiver::debugBuffer() {
-  DEBUG_PRINT("Buffer Size: ");
-  DEBUG_PRINTLN(bufferSize);
   DEBUG_PRINT("Current Buffer: ");
   for(int i = 0; i < bufferSize; i++) {
     DEBUG_PRINT2(serialBuffer[i], DEC);
