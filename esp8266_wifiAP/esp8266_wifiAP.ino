@@ -14,7 +14,7 @@
 
 WifiWrapper wifiWrapper;
 PixelConfig pixelConfig;
-HttpController httpController(&wifiWrapper, &pixelConfig);
+HttpController httpController;
 WifiConfig wifiConfig;
 
 void setup() {
@@ -23,23 +23,19 @@ void setup() {
   setupWifi();
 
   PixelConfigRepository.load(&pixelConfig);
-  httpController.setup();
-  httpController.setWifiConfig(&wifiConfig);
+  httpController.setup(&wifiWrapper, &wifiConfig, &pixelConfig);
 }
 
 void setupWifi() {
-  loadWifiConfig();
+  if (!WifiConfigRepository.load(&wifiConfig)) {
+    useDefaultWifiConfig();
+  }
+
   wifiWrapper.setup(&wifiConfig);
 
   if (!wifiWrapper.isConnected()) {
     useDefaultWifiConfig();
     wifiWrapper.setup(&wifiConfig);
-  }
-}
-
-void loadWifiConfig() {
-  if (!WifiConfigRepository.load(&wifiConfig)) {
-    useDefaultWifiConfig();
   }
 }
 

@@ -6,6 +6,7 @@
 #include "debug_utils.h"
 
 #include "ESP8266WebServer.h"
+#include "page_builder.h"
 
 #include "wifi_config.h"
 #include "wifi_wrapper.h"
@@ -17,28 +18,24 @@
 
 
 class HttpController {
-  WifiConfig wifiConfig;
+  WifiConfig *wifiConfig;
+  PixelConfig *pixelConfig;
+
   WifiWrapper *wifiWrapper;
   ESP8266WebServer httpServer;
-  PixelConfig *pixelConfig;
-  PixelController controller;
+
+  PixelController pixelController;
+  PageBuilder pageBuilder;
 
 public:
-  HttpController(WifiWrapper *newWifiWrapper, PixelConfig *newPixelConfig);
-
-  void setup();
+  void setup(WifiWrapper *newWifiWrapper, WifiConfig *newWifiConfig, PixelConfig *newPixelConfig);
   void loop();
-
-  String wifiConfigForm();
-  String pixelConfigForm();
   
-  void setupPages();
   void setWifiConfig(const WifiConfig *newConfig);
-  
-private:
-  String header();
-  String footer();
-  String layout(String contents);
+  void setPixelConfig(const PixelConfig *newConfig);
+
+private: 
+  void setupPages();
 };
 
 #endif
