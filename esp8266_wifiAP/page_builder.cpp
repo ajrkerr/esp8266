@@ -19,6 +19,7 @@ String PageBuilder::build(WifiConfig *wifiConfig, PixelConfig *pixelConfig, WiFi
   client.print("    $(this).tab('show');");
   client.print("  })");
   client.print("</script>");
+  client.print("<br />");
   client.print("<div role='tabpanel'>");
   client.print("  <ul class='nav nav-tabs' role='tablist'>");
   client.print("    <li role='presentation' class='active'><a href='#pixel-config' role='tab' data-toggle='tab'>Pixel Config</a></li>");
