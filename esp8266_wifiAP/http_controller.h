@@ -16,6 +16,9 @@
 #include "pixel_config.h"
 #include "pixel_config_repository.h"
 
+#include "wifi_config_serializer.h"
+#include "pixel_config_serializer.h"
+
 
 class HttpController {
 public:

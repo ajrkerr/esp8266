@@ -46,6 +46,16 @@ void HttpController::setupPages() {
     pageBuilder.build(&wifiConfig, &pixelConfig, httpServer.client());
   });
 
+  httpServer.on("/pixel_config.json", HTTP_GET, [this] () {
+    DEBUG_PRINTLN("GET Pixel Config JSON");
+    httpServer.send(200, "text/html", PixelConfigSerializer.toJSON(&pixelConfig));
+  });
+
+  httpServer.on("/wifi_config.json", HTTP_GET, [this] () {
+    DEBUG_PRINTLN("GET Wifi Config JSON");
+    httpServer.send(200, "text/html", WifiConfigSerializer.toJSON(&wifiConfig));
+  });
+
   httpServer.on("/pixel_config", HTTP_POST, [this] () mutable {
     DEBUG_PRINTLN("POST Pixel Configure");
 

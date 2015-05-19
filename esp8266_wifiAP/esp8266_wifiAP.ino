@@ -34,7 +34,7 @@ void setupWifi() {
     useDefaultWifiConfig();
   }
 
-  wifiWrapper.setup(&wifiConfig);
+  //wifiWrapper.setup(&wifiConfig);
 
   if (!wifiWrapper.isConnected()) {
     useDefaultWifiConfig();
