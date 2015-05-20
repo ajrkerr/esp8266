@@ -10,7 +10,12 @@
 class PageBuilder {
 
 public:
-  String build(WifiConfig *wifiConfig, PixelConfig *pixelConfig, WiFiClient client);
+  void html(WiFiClient client);
+  void script(WiFiClient client);
+  void bootstrap(WiFiClient client);
+
+private:
+  void write(WiFiClient client, const char buffer[], int length);
 };
 
 #endif

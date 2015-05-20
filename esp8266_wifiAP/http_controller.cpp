@@ -16,7 +16,7 @@ void HttpController::setupPages() {
   httpServer.on("/wifi_config", HTTP_GET, [this] () {
     DEBUG_PRINTLN("GET Wifi Configure");
     httpServer.send(200, "text/html", "");
-    pageBuilder.build(&wifiConfig, &pixelConfig, httpServer.client());
+    pageBuilder.html(httpServer.client());
   });
 
   httpServer.on("/wifi_config", HTTP_POST, [this] () mutable {
@@ -34,7 +34,7 @@ void HttpController::setupPages() {
     WifiConfigRepository.persist(&wifiConfig);
 
     httpServer.send(200, "text/html", "");
-    pageBuilder.build(&wifiConfig, &pixelConfig, httpServer.client());
+    pageBuilder.html(httpServer.client());
 
     Serial.println("Restarting...");
     abort();
@@ -43,7 +43,7 @@ void HttpController::setupPages() {
   httpServer.on("/pixel_config", HTTP_GET, [this] () {
     DEBUG_PRINTLN("GET Pixel Configure");
     httpServer.send(200, "text/html", "");
-    pageBuilder.build(&wifiConfig, &pixelConfig, httpServer.client());
+    pageBuilder.html(httpServer.client());
   });
 
   httpServer.on("/pixel_config.json", HTTP_GET, [this] () {
@@ -75,19 +75,31 @@ void HttpController::setupPages() {
     pixelController->send(&pixelConfig);
 
     httpServer.send(200, "text/html", "");
-    pageBuilder.build(&wifiConfig, &pixelConfig, httpServer.client());
+    pageBuilder.html(httpServer.client());
   });
 
   httpServer.on("/resend", HTTP_GET, [this] () {
     pixelController->send(&pixelConfig);
     httpServer.send(200, "text/html", "");
-    pageBuilder.build(&wifiConfig, &pixelConfig, httpServer.client());
+    pageBuilder.html(httpServer.client());
   });
 
   httpServer.on("/", HTTP_GET, [this] () {
     DEBUG_PRINTLN("GET Root");
     httpServer.send(200, "text/html", "");
-    pageBuilder.build(&wifiConfig, &pixelConfig, httpServer.client());
+    pageBuilder.html(httpServer.client());
+  }); 
+
+  httpServer.on("/script.js", HTTP_GET, [this] () {
+    DEBUG_PRINTLN("GET Script");
+    httpServer.send(200, "text/html", "");
+    pageBuilder.script(httpServer.client());
+  }); 
+
+  httpServer.on("/bootstrap.css", HTTP_GET, [this] () {
+    DEBUG_PRINTLN("GET Bootstrap");
+    httpServer.sendCompressed(200, "text/html", "");
+    pageBuilder.bootstrap(httpServer.client());
   }); 
 }
 
