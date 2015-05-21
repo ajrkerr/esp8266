@@ -9,7 +9,9 @@ String WifiConfigSerializerClass::toJSON(WifiConfig *wifiConfig) {
     ->string("hostname", wifiConfig->hostname)
     ->boolean("access_point", wifiConfig->access_point);
 
-  return root->toString();
+  String json = root->toString();
+  delete root;
+  return json;
 }
 
 WifiConfigSerializerClass WifiConfigSerializer;

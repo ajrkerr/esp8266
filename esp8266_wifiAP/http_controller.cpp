@@ -24,14 +24,14 @@ void HttpController::setupPages() {
     String ssid = httpServer.arg("ssid");
     ssid.replace('+', ' ');
     
-    ssid.toCharArray(wifiConfig.ssid, strlen(wifiConfig.ssid));
-    httpServer.arg("password").toCharArray(wifiConfig.password, strlen(wifiConfig.password));
-    httpServer.arg("hostname").toCharArray(wifiConfig.hostname, strlen(wifiConfig.hostname));
+    ssid.toCharArray(wifiConfig.ssid, sizeof(wifiConfig.ssid));
+    httpServer.arg("password").toCharArray(wifiConfig.password, sizeof(wifiConfig.password));
+    httpServer.arg("hostname").toCharArray(wifiConfig.hostname, sizeof(wifiConfig.hostname));
     wifiConfig.access_point = false;
 
+    WifiConfigRepository.persist(&wifiConfig);
     wifiWrapper->setConfig(&wifiConfig);
     wifiWrapper->reconnect();
-    WifiConfigRepository.persist(&wifiConfig);
 
     httpServer.send(200, "text/html", "");
     pageBuilder.html(httpServer.client());
@@ -71,10 +71,13 @@ void HttpController::setupPages() {
     pixelConfig.secondaryColor.green = httpServer.arg("secondary-green").toInt();
     pixelConfig.secondaryColor.blue = httpServer.arg("secondary-blue").toInt();
 
+    DEBUG_PRINTLN("Persisting Data");
     PixelConfigRepository.persist(&pixelConfig);
+    DEBUG_PRINTLN("Sending Data on Serial");
     pixelController->send(&pixelConfig);
-
+    DEBUG_PRINTLN("Sending Header");
     httpServer.send(200, "text/html", "");
+    DEBUG_PRINTLN("Sending Data");
     pageBuilder.html(httpServer.client());
   });
 
@@ -93,13 +96,7 @@ void HttpController::setupPages() {
   httpServer.on("/script.js", HTTP_GET, [this] () {
     DEBUG_PRINTLN("GET Script");
     httpServer.send(200, "text/html", "");
-    pageBuilder.script(httpServer.client());
-  }); 
-
-  httpServer.on("/bootstrap.css", HTTP_GET, [this] () {
-    DEBUG_PRINTLN("GET Bootstrap");
-    httpServer.sendCompressed(200, "text/html", "");
-    pageBuilder.bootstrap(httpServer.client());
+    pageBuilder.javascript(httpServer.client());
   }); 
 }
 

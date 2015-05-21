@@ -11,6 +11,8 @@ protected:
 
 public:
   JSONNode();
+  ~JSONNode();
+
   JSONNode* integer(String key, int value);
   JSONNode* string(String key, String value);
   JSONNode* boolean(String key, bool value);
@@ -61,6 +63,7 @@ class JSONObject : public JSONNode {
 
 public:
   JSONObject(String aKey);
+  ~JSONObject();
   JSONRoot* getChild();
   String toString();
 };

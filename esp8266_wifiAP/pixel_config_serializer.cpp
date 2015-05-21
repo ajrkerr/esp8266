@@ -19,7 +19,9 @@ String PixelConfigSerializerClass::toJSON(PixelConfig *pixelConfig) {
       ->integer("green", pixelConfig->secondaryColor.green)
       ->done();
 
-  return root->toString();
+  String result = root->toString();
+  delete root;
+  return result;
 }
 
 PixelConfigSerializerClass PixelConfigSerializer;
