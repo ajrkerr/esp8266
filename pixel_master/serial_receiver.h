@@ -1,7 +1,7 @@
 #ifndef SERIAL_RECEIVER_H
 #define SERIAL_RECEIVER_H
 
-#include "pixel_config.h"
+#include "pixel_strip_config.h"
 #include "debug_utils.h"
 #include "checksum.h"
 #include "buffer.h"
@@ -15,7 +15,7 @@ class SerialReceiver {
 
 public:
   bool changed;
-  PixelConfig pixelConfig;
+  PixelStripConfig pixelStripConfig;
 
   SerialReceiver(HardwareSerial *hardwareSerial);
   void loop();

@@ -1,9 +1,9 @@
 #include "http_controller.h"
 
-void HttpController::setup(WifiWrapper *newWifiWrapper, PixelController *newPixelController, WifiConfig *newWifiConfig, PixelConfig *newPixelConfig) {
-  setWifiConfig(newWifiConfig);
-  setPixelConfig(newPixelConfig);
-
+void HttpController::setup(WifiWrapper *aWifiWrapper, PixelStripConfigSender *aPixelStripConfigSender) {
+  wifiWrapper = aWifiWrapper;
+  pixelStripConfigSender = aPixelStripConfigSender;
+  
   setupPages();
   httpServer.begin();
 }
@@ -40,15 +40,15 @@ void HttpController::setupPages() {
     abort();
   });
 
-  httpServer.on("/pixel_config", HTTP_GET, [this] () {
+  httpServer.on("/pixel_strip_config", HTTP_GET, [this] () {
     DEBUG_PRINTLN("GET Pixel Configure");
     httpServer.send(200, "text/html", "");
     pageBuilder.html(httpServer.client());
   });
 
-  httpServer.on("/pixel_config.json", HTTP_GET, [this] () {
+  httpServer.on("/pixel_strip_config.json", HTTP_GET, [this] () {
     DEBUG_PRINTLN("GET Pixel Config JSON");
-    httpServer.send(200, "text/html", PixelConfigSerializer.toJSON(&pixelConfig));
+    httpServer.send(200, "text/html", PixelStripConfigSerializer.toJSON(&pixelStripConfig));
   });
 
   httpServer.on("/wifi_config.json", HTTP_GET, [this] () {
@@ -56,56 +56,56 @@ void HttpController::setupPages() {
     httpServer.send(200, "text/html", WifiConfigSerializer.toJSON(&wifiConfig));
   });
 
-  httpServer.on("/pixel_config", HTTP_POST, [this] () mutable {
+  httpServer.on("/pixel_strip_config", HTTP_POST, [this] () mutable {
     DEBUG_PRINTLN("POST Pixel Configure");
 
-    pixelConfig.frameLength = httpServer.arg("frameLength").toInt();
-    pixelConfig.numPixels = httpServer.arg("numPixels").toInt();
-    pixelConfig.type = (Animation)httpServer.arg("type").toInt();
+    pixelStripConfig.frameLength = httpServer.arg("frameLength").toInt();
+    pixelStripConfig.numPixels = httpServer.arg("numPixels").toInt();
+    pixelStripConfig.type = (Animation)httpServer.arg("type").toInt();
 
-    pixelConfig.primaryColor.red = httpServer.arg("primary-red").toInt();
-    pixelConfig.primaryColor.green = httpServer.arg("primary-green").toInt();
-    pixelConfig.primaryColor.blue = httpServer.arg("primary-blue").toInt();
+    pixelStripConfig.primaryColor.red = httpServer.arg("primary-red").toInt();
+    pixelStripConfig.primaryColor.green = httpServer.arg("primary-green").toInt();
+    pixelStripConfig.primaryColor.blue = httpServer.arg("primary-blue").toInt();
 
-    pixelConfig.secondaryColor.red = httpServer.arg("secondary-red").toInt();
-    pixelConfig.secondaryColor.green = httpServer.arg("secondary-green").toInt();
-    pixelConfig.secondaryColor.blue = httpServer.arg("secondary-blue").toInt();
+    pixelStripConfig.secondaryColor.red = httpServer.arg("secondary-red").toInt();
+    pixelStripConfig.secondaryColor.green = httpServer.arg("secondary-green").toInt();
+    pixelStripConfig.secondaryColor.blue = httpServer.arg("secondary-blue").toInt();
 
     DEBUG_PRINTLN("Persisting Data");
-    PixelConfigRepository.persist(&pixelConfig);
+    PixelStripConfigRepository.persist(&pixelStripConfig);
     DEBUG_PRINTLN("Sending Data on Serial");
-    pixelController->send(&pixelConfig);
+    pixelStripConfigSender->send(&pixelStripConfig);
     DEBUG_PRINTLN("Sending Header");
     httpServer.send(200, "text/html", "");
     DEBUG_PRINTLN("Sending Data");
     pageBuilder.html(httpServer.client());
   });
 
-httpServer.on("/pixel_config.json", HTTP_POST, [this] () mutable {
+httpServer.on("/pixel_strip_config.json", HTTP_POST, [this] () mutable {
     DEBUG_PRINTLN("POST Pixel Configure");
 
-    pixelConfig.frameLength = httpServer.arg("frameLength").toInt();
-    pixelConfig.numPixels = httpServer.arg("numPixels").toInt();
-    pixelConfig.type = (Animation)httpServer.arg("type").toInt();
+    pixelStripConfig.frameLength = httpServer.arg("frameLength").toInt();
+    pixelStripConfig.numPixels = httpServer.arg("numPixels").toInt();
+    pixelStripConfig.type = (Animation)httpServer.arg("type").toInt();
 
-    pixelConfig.primaryColor.red = httpServer.arg("primary-red").toInt();
-    pixelConfig.primaryColor.green = httpServer.arg("primary-green").toInt();
-    pixelConfig.primaryColor.blue = httpServer.arg("primary-blue").toInt();
+    pixelStripConfig.primaryColor.red = httpServer.arg("primary-red").toInt();
+    pixelStripConfig.primaryColor.green = httpServer.arg("primary-green").toInt();
+    pixelStripConfig.primaryColor.blue = httpServer.arg("primary-blue").toInt();
 
-    pixelConfig.secondaryColor.red = httpServer.arg("secondary-red").toInt();
-    pixelConfig.secondaryColor.green = httpServer.arg("secondary-green").toInt();
-    pixelConfig.secondaryColor.blue = httpServer.arg("secondary-blue").toInt();
+    pixelStripConfig.secondaryColor.red = httpServer.arg("secondary-red").toInt();
+    pixelStripConfig.secondaryColor.green = httpServer.arg("secondary-green").toInt();
+    pixelStripConfig.secondaryColor.blue = httpServer.arg("secondary-blue").toInt();
 
     DEBUG_PRINTLN("Persisting Data");
-    PixelConfigRepository.persist(&pixelConfig);
+    PixelStripConfigRepository.persist(&pixelStripConfig);
     DEBUG_PRINTLN("Sending Data on Serial");
-    pixelController->send(&pixelConfig);
+    pixelStripConfigSender->send(&pixelStripConfig);
 
-    httpServer.send(200, "text/html", PixelConfigSerializer.toJSON(&pixelConfig));
+    httpServer.send(200, "text/html", PixelStripConfigSerializer.toJSON(&pixelStripConfig));
   });
 
   httpServer.on("/resend", HTTP_GET, [this] () {
-    pixelController->send(&pixelConfig);
+    pixelStripConfigSender->send(&pixelStripConfig);
     httpServer.send(200, "text/html", "");
     pageBuilder.html(httpServer.client());
   });
@@ -121,12 +121,4 @@ httpServer.on("/pixel_config.json", HTTP_POST, [this] () mutable {
     httpServer.send(200, "text/html", "");
     pageBuilder.javascript(httpServer.client());
   }); 
-}
-
-void HttpController::setWifiConfig(const WifiConfig *newConfig) {
-  memcpy(&wifiConfig, newConfig, sizeof(wifiConfig));
-}
-
-void HttpController::setPixelConfig(const PixelConfig *newConfig) {
-  memcpy(&pixelConfig, newConfig, sizeof(pixelConfig));
 }

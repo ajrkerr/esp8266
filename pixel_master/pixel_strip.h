@@ -5,7 +5,7 @@
 #include "FastLED.h"
 // #include <Adafruit_NeoPixel.h>
 #include "pixel.h"
-#include "pixel_config.h"
+#include "pixel_strip_config.h"
 
 class PixelStrip {
 protected:

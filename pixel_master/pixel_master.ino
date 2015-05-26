@@ -3,23 +3,23 @@
 #include <FastLED.h>
 #include <RGBConverter.h>
 
-#include "pixel_config.h"
+#include "pixel_strip_config.h"
 #include "pixel_driver.h"
 #include "serial_receiver.h"
 
 SerialReceiver receiver(&Serial2);
 PixelDriver driver;
-PixelConfig pixelConfig;
+PixelStripConfig pixelStripConfig;
 
 #define PIXEL_DRIVER_PIN 9
 
 void initConfig() {
-  pixelConfig.numPixels = 120;
-  pixelConfig.frameLength = 15;
-  pixelConfig.type = PIXEL_FLAME;
-  pixelConfig.primaryColor.red = 255;
-  pixelConfig.primaryColor.green = 0;
-  pixelConfig.primaryColor.blue  = 0;
+  pixelStripConfig.numPixels = 120;
+  pixelStripConfig.frameLength = 15;
+  pixelStripConfig.type = PIXEL_FLAME;
+  pixelStripConfig.primaryColor.red = 255;
+  pixelStripConfig.primaryColor.green = 0;
+  pixelStripConfig.primaryColor.blue  = 0;
 }
 
 void setup() { 
@@ -28,14 +28,14 @@ void setup() {
   Serial2.println("RESEND");
   
   initConfig();
-  driver.setup(&pixelConfig);
+  driver.setup(&pixelStripConfig);
 }
 
 void loop() { 
   receiver.loop();
   
   if(receiver.changed) {
-    driver.setConfig(&receiver.pixelConfig);
+    driver.setConfig(&receiver.pixelStripConfig);
   }
 
   driver.loop();

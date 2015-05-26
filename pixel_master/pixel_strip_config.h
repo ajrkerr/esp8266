@@ -1,5 +1,5 @@
-#ifndef PIXEL_CONFIG_H
-#define PIXEL_CONFIG_H
+#ifndef PIXEL_STRIP_CONFIG_H
+#define PIXEL_STRIP_CONFIG_H
 
 #include <Arduino.h>
 
@@ -25,6 +25,6 @@ typedef struct {
 
   Color primaryColor;
   Color secondaryColor;
-} PixelConfig;
+} PixelStripConfig;
 
 #endif

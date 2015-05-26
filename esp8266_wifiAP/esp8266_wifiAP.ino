@@ -8,15 +8,16 @@
 #define DEBUG 0
 
 #include "wifi_wrapper.h"
-#include "pixel_config.h"
+#include "pixel_strip_config.h"
 #include "http_controller.h"
 #include "wifi_config_repository.h"
+#include "pixel_strip_config_sender.h"
 
 WifiWrapper wifiWrapper;
-PixelConfig pixelConfig;
+PixelStripConfig pixelStripConfig;
 HttpController httpController;
 WifiConfig wifiConfig;
-PixelController pixelController;
+PixelStripConfigSender pixelStripConfigSender;
 
 char buffer[6];
 
@@ -25,8 +26,10 @@ void setup() {
 
   setupWifi();
 
-  PixelConfigRepository.load(&pixelConfig);
-  httpController.setup(&wifiWrapper, &pixelController, &wifiConfig, &pixelConfig);
+  PixelStripConfigRepository.load(&pixelStripConfig);
+  httpController.setup(&wifiWrapper, &pixelStripConfigSender);
+  httpController.wifiConfig = wifiConfig;
+  httpController.pixelStripConfig = pixelStripConfig;
 }
 
 void setupWifi() {
@@ -65,7 +68,7 @@ void loop() {
     addToBuffer(Serial.read());
 
     if(strcmp(buffer, "RESEND") == 0) {
-      pixelController.send(&httpController.pixelConfig);
+      pixelStripConfigSender.send(&httpController.pixelStripConfig);
     }
   }
 }

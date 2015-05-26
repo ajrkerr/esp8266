@@ -1,12 +1,12 @@
-#ifndef PIXEL_CONTROLLER_H
-#define PIXEL_CONTROLLER_H
+#ifndef PIXEL_STRIP_CONFIG_SENDER_H
+#define PIXEL_STRIP_CONFIG_SENDER_H
 
-#include "pixel_config.h"
+#include "pixel_strip_config.h"
 #include "checksum.h"
 
-class PixelController {
+class PixelStripConfigSender {
 public:
-  void send(PixelConfig *config) {
+  void send(PixelStripConfig *config) {
     const char *preamble = "123"; //arbitrary
     const char *postamble = "321"; //arbitrary
 

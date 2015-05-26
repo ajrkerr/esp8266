@@ -12,33 +12,30 @@
 #include "wifi_wrapper.h"
 #include "wifi_config_repository.h"
 
-#include "pixel_controller.h"
-#include "pixel_config.h"
-#include "pixel_config_repository.h"
+#include "pixel_strip_config_sender.h"
+#include "pixel_strip_config.h"
+#include "pixel_strip_config_repository.h"
 
 #include "wifi_config_serializer.h"
-#include "pixel_config_serializer.h"
+#include "pixel_strip_config_serializer.h"
 
 
 class HttpController {
 public:
   WifiConfig wifiConfig;
-  PixelConfig pixelConfig;
+  PixelStripConfig pixelStripConfig;
 
 private:
-  WifiWrapper *wifiWrapper;
   ESP8266WebServer httpServer;
 
-  PixelController *pixelController;
+  WifiWrapper *wifiWrapper;
+  PixelStripConfigSender *pixelStripConfigSender;
   PageBuilder pageBuilder;
 
 public:
-  void setup(WifiWrapper *newWifiWrapper, PixelController *newPixelController, WifiConfig *newWifiConfig, PixelConfig *newPixelConfig);
+  void setup(WifiWrapper *aWifiWrapper, PixelStripConfigSender *aPixelStripConfigSender);
   void loop();
   
-  void setWifiConfig(const WifiConfig *newConfig);
-  void setPixelConfig(const PixelConfig *newConfig);
-
 private: 
   void setupPages();
 };

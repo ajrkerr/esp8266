@@ -2,7 +2,7 @@
 
 SerialReceiver::SerialReceiver(HardwareSerial *hardwareSerial) {
   serial = hardwareSerial;
-  buffer = new Buffer(sizeof(PixelConfig), preamble, strlen(preamble));
+  buffer = new Buffer(sizeof(PixelStripConfig), preamble, strlen(preamble));
 }
 
 void SerialReceiver::loop() {
@@ -14,7 +14,7 @@ void SerialReceiver::loop() {
 
     if(buffer->containsMatch()) {
       DEBUG_PRINTLN("Preamble/Postamble found");
-      buffer->copyIntoStructure(&pixelConfig);
+      buffer->copyIntoStructure(&pixelStripConfig);
       changed = true;
     }
   }

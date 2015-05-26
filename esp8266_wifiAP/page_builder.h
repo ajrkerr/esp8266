@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 #include "wifi_config.h"
-#include "pixel_config.h"
+#include "pixel_strip_config.h"
 #include "WiFiClient.h"
 
 
@@ -94,10 +94,10 @@ PROGMEM const char javascriptData[] = R"###(
   }
 
 
-  // PixelConfig //
-  function PixelConfig() {}
-  PixelConfig.fromJSON = function (json) {
-    var config = new PixelConfig();
+  // PixelStripConfig //
+  function PixelStripConfig() {}
+  PixelStripConfig.fromJSON = function (json) {
+    var config = new PixelStripConfig();
 
     config.frameLength = json.frameLength;
     config.numPixels = json.numPixels;
@@ -108,8 +108,8 @@ PROGMEM const char javascriptData[] = R"###(
 
     return config;
   }
-  PixelConfig.fromFormData = function (formData) {
-    var config = new PixelConfig();
+  PixelStripConfig.fromFormData = function (formData) {
+    var config = new PixelStripConfig();
 
     config.frameLength = formData.frameLength;
     config.numPixels = formData.numPixels;
@@ -122,8 +122,8 @@ PROGMEM const char javascriptData[] = R"###(
   }
 
   // Pixel Config Serializer
-  function PixelConfigSerializer() {}
-  PixelConfigSerializer.serialize = function(config) {
+  function PixelStripConfigSerializer() {}
+  PixelStripConfigSerializer.serialize = function(config) {
     return {
       "frameLength": config.frameLength,
       "numPixels": config.numPixels,
@@ -185,17 +185,17 @@ PROGMEM const char javascriptData[] = R"###(
     
     var formData = this.getFormData();
     console.log(formData);
-    var config = PixelConfig.fromFormData(formData);
-    var serializedConfig = PixelConfigSerializer.serialize(config);
+    var config = PixelStripConfig.fromFormData(formData);
+    var serializedConfig = PixelStripConfigSerializer.serialize(config);
 
-    $http('/pixel_config.json')
+    $http('/pixel_strip_config.json')
       .post(serializedConfig)
       .then(function () {alert("Success");}, function (e) {alert("Fail"); console.log(e);});
   }
 
   var callback = {
     buildPixelForm : function(data){
-      var config = PixelConfig.fromJSON(data);
+      var config = PixelStripConfig.fromJSON(data);
       var form = document.getElementById('pixel-config-form');
 
       new PixelForm(form, config);
@@ -213,7 +213,7 @@ PROGMEM const char javascriptData[] = R"###(
 
 
   function onLoad() {
-    $http("/pixel_config.json").get().then(callback.buildPixelForm, callback.error);
+    $http("/pixel_strip_config.json").get().then(callback.buildPixelForm, callback.error);
     $http("/wifi_config.json").get().then(callback.buildWifiForm, callback.error);
   }
 
@@ -260,7 +260,7 @@ PROGMEM const char htmlData[] = R"###(
       </ul>
       <div class='tab-content'>
         <div role='tabpanel' class='tab-pane active' id='pixel-config'>
-          <form action='/pixel_config' method='POST' id='pixel-config-form'>
+          <form action='/pixel_strip_config' method='POST' id='pixel-config-form'>
             <h2>Pixel Config</h2>
             <div class='form-group'><label for='frameLength'>Frame Length: </label><input class='form-control' name='frameLength' maxlength='32' /></div>
             <div class='form-group'><label for='numPixels'>Number of Pixels: </label><input class='form-control' name='numPixels' maxlength='32' /></div>

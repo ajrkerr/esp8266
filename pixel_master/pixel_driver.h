@@ -2,12 +2,12 @@
 #define PIXEL_DRIVER_H
 
 #include "pixel_strip.h"
-#include "pixel_config.h"
+#include "pixel_strip_config.h"
 #include "pixel.h"
 #include <RGBConverter.h>
 
 class PixelDriver {
-  PixelConfig config;
+  PixelStripConfig config;
   
   unsigned long currentFrame;
   PixelStrip *strip;
@@ -15,8 +15,8 @@ class PixelDriver {
   double *flameDelta;
 
 public: 
-  void setup(PixelConfig *newConfig);
-  void setConfig(PixelConfig *newConfig);
+  void setup(PixelStripConfig *newConfig);
+  void setConfig(PixelStripConfig *newConfig);
   void setPixel(int position, Pixel pixel);
   Pixel getPixel(int position);
   void loop();

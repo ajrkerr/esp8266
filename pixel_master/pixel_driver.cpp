@@ -1,12 +1,12 @@
 #include "pixel_driver.h"
 #define DATA_PIN 9
 
-void PixelDriver::setup(PixelConfig *newConfig) {
+void PixelDriver::setup(PixelStripConfig *newConfig) {
   setConfig(newConfig);
   strip = new WSPixelStrip(DATA_PIN, config.numPixels);
 }
 
-void PixelDriver::setConfig(PixelConfig *newConfig) {
+void PixelDriver::setConfig(PixelStripConfig *newConfig) {
   memcpy(&config, newConfig, sizeof(config));
 
   strip->resize(config.numPixels);
