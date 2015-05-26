@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include "FastLED.h"
-// #include <Adafruit_NeoPixel.h>
 #include "pixel.h"
 #include "pixel_strip_config.h"
 
@@ -14,7 +13,6 @@ protected:
   int numPixels;
 
 public:
-  //WSPixelStrip(int aDataPin, int aNumPixels);
   virtual void setPixel(int position, Pixel pixel);
   virtual Pixel getPixel(int position);
   virtual void draw();
@@ -28,7 +26,7 @@ public:
     numPixels = aNumPixels;
 
     leds = (CRGB*) malloc(sizeof(CRGB) * numPixels);
-    FastLED.addLeds<WS2812B, 9, GRB>(leds, numPixels);
+    FastLED.addLeds<WS2812B, 9, RGB>(leds, numPixels);
   }
 
   void setPixel(int position, Pixel pixel) {
@@ -42,9 +40,12 @@ public:
   
   void resize(int aNumPixels) {
     numPixels = aNumPixels;
-    FastLED.addLeds<WS2812B, 9, GRB>(leds, numPixels);
+    FastLED.addLeds<WS2812B, 9, RGB>(leds, numPixels);
+    FastLED.clear();
   }
 };
+
+// #include <Adafruit_NeoPixel.h>
 
 // class NeoPixelStrip : PixelStrip{
 //   Adafruit_NeoPixel *strip;

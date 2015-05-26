@@ -30,7 +30,7 @@ void HttpController::setupPages() {
     wifiConfig.access_point = false;
 
     WifiConfigRepository.persist(&wifiConfig);
-    wifiWrapper->setConfig(&wifiConfig);
+    wifiWrapper->setConfig(wifiConfig);
     wifiWrapper->reconnect();
 
     httpServer.send(200, "text/html", "");
@@ -61,7 +61,7 @@ void HttpController::setupPages() {
 
     pixelStripConfig.frameLength = httpServer.arg("frameLength").toInt();
     pixelStripConfig.numPixels = httpServer.arg("numPixels").toInt();
-    pixelStripConfig.type = (Animation)httpServer.arg("type").toInt();
+    pixelStripConfig.type = (AnimationType)httpServer.arg("type").toInt();
 
     pixelStripConfig.primaryColor.red = httpServer.arg("primary-red").toInt();
     pixelStripConfig.primaryColor.green = httpServer.arg("primary-green").toInt();
@@ -74,7 +74,7 @@ void HttpController::setupPages() {
     DEBUG_PRINTLN("Persisting Data");
     PixelStripConfigRepository.persist(&pixelStripConfig);
     DEBUG_PRINTLN("Sending Data on Serial");
-    pixelStripConfigSender->send(&pixelStripConfig);
+    pixelStripConfigSender->send(pixelStripConfig);
     DEBUG_PRINTLN("Sending Header");
     httpServer.send(200, "text/html", "");
     DEBUG_PRINTLN("Sending Data");
@@ -86,7 +86,7 @@ httpServer.on("/pixel_strip_config.json", HTTP_POST, [this] () mutable {
 
     pixelStripConfig.frameLength = httpServer.arg("frameLength").toInt();
     pixelStripConfig.numPixels = httpServer.arg("numPixels").toInt();
-    pixelStripConfig.type = (Animation)httpServer.arg("type").toInt();
+    pixelStripConfig.type = (AnimationType)httpServer.arg("type").toInt();
 
     pixelStripConfig.primaryColor.red = httpServer.arg("primary-red").toInt();
     pixelStripConfig.primaryColor.green = httpServer.arg("primary-green").toInt();
@@ -99,13 +99,13 @@ httpServer.on("/pixel_strip_config.json", HTTP_POST, [this] () mutable {
     DEBUG_PRINTLN("Persisting Data");
     PixelStripConfigRepository.persist(&pixelStripConfig);
     DEBUG_PRINTLN("Sending Data on Serial");
-    pixelStripConfigSender->send(&pixelStripConfig);
+    pixelStripConfigSender->send(pixelStripConfig);
 
     httpServer.send(200, "text/html", PixelStripConfigSerializer.toJSON(&pixelStripConfig));
   });
 
   httpServer.on("/resend", HTTP_GET, [this] () {
-    pixelStripConfigSender->send(&pixelStripConfig);
+    pixelStripConfigSender->send(pixelStripConfig);
     httpServer.send(200, "text/html", "");
     pageBuilder.html(httpServer.client());
   });

@@ -9,12 +9,12 @@ class PixelStripConfigSender {
   const char *postamble = "21"; //arbitrary
 
 public:
-  void send(PixelStripConfig *config) {
-    char *buffer = (char*)config;
+  void send(PixelStripConfig config) {
+    char *buffer = (char*)&config;
     
     Serial.write(preamble, strlen(preamble));
-    Serial.write(buffer, sizeof(*config));
-    Serial.write(Checksum.calculate(buffer, sizeof(*config)));
+    Serial.write(buffer, sizeof(PixelStripConfig));
+    Serial.write(Checksum.calculate(buffer, sizeof(PixelStripConfig)));
     Serial.write(postamble, strlen(postamble));
   }
 };

@@ -16,18 +16,18 @@ class WifiWrapper {
   bool connected = false;
 
 public:
-  void setup(WifiConfig *newConfig);
+  void setup(WifiConfig aConfig);
   void loop();
   bool connect();
   bool reconnect();
 
   void debugConfig();
+  void setConfig(WifiConfig newConfig);
 
   char* getSSID();
   char* getPassword();
   char* getHostname();
 
-  void setConfig(const WifiConfig *newConfig);
   void createAP();
   bool connectToAP();
   bool isConnected();

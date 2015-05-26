@@ -164,7 +164,7 @@ PROGMEM const char javascriptData[] = R"###(
     this.ui.numPixels.value = this.config.numPixels;
     this.ui.type.selectedIndex = this.config.type;
 
-    if($) {
+    if(typeof $ !== 'undefined' && typeof $.minicolors !== 'undefined') {
       $(this.ui.primaryColor).minicolors('value', this.config.primaryColor.toHtmlColor());
       $(this.ui.secondaryColor).minicolors('value', this.config.secondaryColor.toHtmlColor());
     } else {

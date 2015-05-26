@@ -9,11 +9,11 @@
 class WifiConfigRepositoryClass {
 public:
   void persist(WifiConfig *config) {
-    Repository.persist(WIFI_CONFIG_LOCATION, sizeof(*config), (char*)config);
+    Repository.persist(WIFI_CONFIG_LOCATION, sizeof(WifiConfig), (char*)config);
   }
 
   bool load(WifiConfig *config) {
-    bool restored = Repository.load(WIFI_CONFIG_LOCATION, sizeof(*config), (char*)config);
+    bool restored = Repository.load(WIFI_CONFIG_LOCATION, sizeof(WifiConfig), (char*)config);
 
     if(restored) {
       // Ensure config ends with string terminators

@@ -26,9 +26,8 @@ void setup() {
   Serial.begin(SERIAL_BAUD);
   Serial2.begin(SERIAL_BAUD);
   Serial2.println("RESEND");
-  DEBUG_PRINT("Serials are setup");
+
   initConfig();
-  DEBUG_PRINT("Config Built");
   driver.setup(pixelStripConfig);
 }
 

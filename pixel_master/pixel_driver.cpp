@@ -16,26 +16,32 @@ void PixelDriver::setConfig(PixelStripConfig newConfig) {
   currentFrame = millis() / config.frameLength;
 
   if(animation != NULL) {
-    free(animation);
+    delete animation;
     animation = NULL;
   }
   
   switch(config.type) {
     case PIXEL_SOLID:
+      DEBUG_PRINT("Changing to solid");
       animation = new AnimationSolid();
       break;
     case PIXEL_TRACER:
+      DEBUG_PRINT("Changing to Tracer");
       animation = new AnimationTracer();
       break;
     case PIXEL_RAINBOW:
+      DEBUG_PRINT("Changing to rainbow");
       animation = new AnimationRainbow();
       break;
     case PIXEL_FLAME:
+      DEBUG_PRINT("Changing to flame");
       animation = new AnimationFlame();
       break;
   }
 
-  animation->setup(currentFrame, config, strip);
+  if(animation != NULL) {
+    animation->setup(currentFrame, config, strip);
+  }
 }
 
 void PixelDriver::loop() {

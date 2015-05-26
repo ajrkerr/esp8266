@@ -8,6 +8,7 @@ JSONNode::JSONNode() {
 JSONNode::~JSONNode() {
   if(next != NULL) {
     delete next;
+    next = NULL;
   }
 }
 
@@ -60,6 +61,7 @@ String JSONRoot::toString() {
 JSONRoot::~JSONRoot() {
   if(next != NULL) {
     delete next;
+    next = NULL;
   }
 }
 
@@ -73,6 +75,7 @@ JSONInteger::JSONInteger(String aKey, int aValue) {
 JSONInteger::~JSONInteger() {
   if(next != NULL) {
     delete next;
+    next = NULL;
   }
 }
 
@@ -95,10 +98,12 @@ JSONObject::JSONObject(String aKey) {
 JSONObject::~JSONObject() {
   if(next != NULL) {
     delete next;
+    next = NULL;
   }
 
   if(child != NULL) {
     delete child;
+    child = NULL;
   }
 }
 
@@ -124,6 +129,7 @@ JSONString::JSONString(String aKey, String aValue) {
 JSONString::~JSONString() {
   if(next != NULL) {
     delete next;
+    next = NULL;
   }
 }
 
@@ -147,6 +153,7 @@ JSONBoolean::JSONBoolean(String aKey, bool aValue) {
 JSONBoolean::~JSONBoolean() {
   if(next != NULL) {
     delete next;
+    next = NULL;
   }
 }
 

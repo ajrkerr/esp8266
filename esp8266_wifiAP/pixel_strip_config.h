@@ -9,7 +9,7 @@ typedef struct {
   unsigned char blue;
 } Color;
 
-enum Animation { 
+enum AnimationType { 
   PIXEL_SOLID, 
   PIXEL_TRACER, 
   PIXEL_RAINBOW,

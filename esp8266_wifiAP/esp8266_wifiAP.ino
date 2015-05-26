@@ -37,11 +37,11 @@ void setupWifi() {
     useDefaultWifiConfig();
   }
 
-  wifiWrapper.setup(&wifiConfig);
+  wifiWrapper.setup(wifiConfig);
 
   if (!wifiWrapper.isConnected()) {
     useDefaultWifiConfig();
-    wifiWrapper.setup(&wifiConfig);
+    wifiWrapper.setup(wifiConfig);
   }
 }
 
@@ -68,7 +68,7 @@ void loop() {
     addToBuffer(Serial.read());
 
     if(strcmp(buffer, "RESEND") == 0) {
-      pixelStripConfigSender.send(&httpController.pixelStripConfig);
+      pixelStripConfigSender.send(httpController.pixelStripConfig);
     }
   }
 }

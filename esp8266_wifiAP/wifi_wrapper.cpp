@@ -1,8 +1,12 @@
 #include "wifi_wrapper.h"
 
-void WifiWrapper::setup(WifiConfig *newConfig) {
-  setConfig(newConfig);
+void WifiWrapper::setup(WifiConfig aConfig) {
+  config = aConfig;
   connect();
+}
+
+void WifiWrapper::setConfig(WifiConfig newConfig) {
+  config = newConfig;
 }
 
 bool WifiWrapper::connect() {
@@ -108,10 +112,6 @@ char* WifiWrapper::getPassword() {
 
 char* WifiWrapper::getHostname() {
   return config.hostname;
-}
-
-void WifiWrapper::setConfig(const WifiConfig *newConfig) {
-  memcpy(&config, newConfig, sizeof(config));
 }
 
 bool WifiWrapper::isConnected() {
