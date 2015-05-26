@@ -26,16 +26,17 @@ void setup() {
   Serial.begin(SERIAL_BAUD);
   Serial2.begin(SERIAL_BAUD);
   Serial2.println("RESEND");
-  
+  DEBUG_PRINT("Serials are setup");
   initConfig();
-  driver.setup(&pixelStripConfig);
+  DEBUG_PRINT("Config Built");
+  driver.setup(pixelStripConfig);
 }
 
 void loop() { 
   receiver.loop();
   
   if(receiver.changed) {
-    driver.setConfig(&receiver.pixelStripConfig);
+    driver.setConfig(receiver.pixelStripConfig);
   }
 
   driver.loop();

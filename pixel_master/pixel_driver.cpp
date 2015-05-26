@@ -1,27 +1,41 @@
 #include "pixel_driver.h"
+#include "debug_utils.h"
 #define DATA_PIN 9
 
-void PixelDriver::setup(PixelStripConfig *newConfig) {
-  setConfig(newConfig);
+void PixelDriver::setup(PixelStripConfig aConfig) {
+  DEBUG_PRINT("Building PixelDriver");
   strip = new WSPixelStrip(DATA_PIN, config.numPixels);
+  animation = NULL;
+  setConfig(aConfig);
 }
 
-void PixelDriver::setConfig(PixelStripConfig *newConfig) {
-  memcpy(&config, newConfig, sizeof(config));
+void PixelDriver::setConfig(PixelStripConfig newConfig) {
+  config = newConfig;
 
   strip->resize(config.numPixels);
   currentFrame = millis() / config.frameLength;
 
-  free(flameDirection);
-  free(flameDelta);
-
-  flameDirection = (double*) malloc(sizeof(double) * config.numPixels);
-  flameDelta = (double*) malloc(sizeof(double) * config.numPixels);
-  
-  for(int i = 0; i < config.numPixels; i++) {
-    flameDirection[i] = 1.0;
-    flameDelta[i] = 0.0;
+  if(animation != NULL) {
+    free(animation);
+    animation = NULL;
   }
+  
+  switch(config.type) {
+    case PIXEL_SOLID:
+      animation = new AnimationSolid();
+      break;
+    case PIXEL_TRACER:
+      animation = new AnimationTracer();
+      break;
+    case PIXEL_RAINBOW:
+      animation = new AnimationRainbow();
+      break;
+    case PIXEL_FLAME:
+      animation = new AnimationFlame();
+      break;
+  }
+
+  animation->setup(currentFrame, config, strip);
 }
 
 void PixelDriver::loop() {
@@ -34,91 +48,5 @@ void PixelDriver::loop() {
 }
 
 void PixelDriver::drawFrame() {
-  Pixel pixel;
-
-  if(config.type == PIXEL_SOLID) {
-    for(int i = 0; i < config.numPixels; i++) { 
-      pixel.red = (int)config.primaryColor.red;
-      pixel.green = (int)config.primaryColor.green;
-      pixel.blue = (int)config.primaryColor.blue;
-
-      strip->setPixel(i, pixel);
-    }
-  } else if(config.type == PIXEL_TRACER) {
-    for(int i = 0; i < config.numPixels; i++) { 
-      if(currentFrame % config.numPixels == i) {
-        pixel.red = (int)config.primaryColor.red;
-        pixel.green = (int)config.primaryColor.green;
-        pixel.blue = (int)config.primaryColor.blue;
-      } else {
-        pixel.red = (int)config.secondaryColor.red;
-        pixel.green = (int)config.secondaryColor.green;
-        pixel.blue = (int)config.secondaryColor.blue;
-      }
-
-      strip->setPixel(i, pixel);
-    }
-  } else if(config.type == PIXEL_RAINBOW) {
-    double hue;
-    double sat = 1.0;
-    double val = 1.0; 
-  
-    RGBConverter conv; // Convert from HSV to RGB space
-    byte rgb[3];
-  
-    for(int i = 0; i < config.numPixels; i++) {
-      int colorPos = i + currentFrame;
-      int framesForCycle = 250;
-      hue = ((double)(colorPos % framesForCycle) / framesForCycle);
-
-      conv.hsvToRgb(hue, sat, val, rgb);
-      
-      pixel.red = rgb[0];
-      pixel.green = rgb[1];
-      pixel.blue = rgb[2];
-
-      strip->setPixel(i, pixel);
-    }
-  } else if(config.type == PIXEL_FLAME) {
-    RGBConverter conv;
-    
-    double primaryHSV[3];
-    conv.rgbToHsv(config.primaryColor.red, config.primaryColor.green, config.primaryColor.blue, primaryHSV);
-    double primaryHue = primaryHSV[0];
-    double primarySaturation = primaryHSV[1];
-    double primaryValue = primaryHSV[2];
-
-    double maxVariance = 0.08;
-    double flameStep = 0.00085;
-    int entropy = 07;
-
-    byte rgb[3];
-
-    for(int i = 0; i < config.numPixels; i++) { 
-      if(random(100) < entropy) {
-        flameDirection[i] = flameDirection[i] * -1;
-      }
-
-      flameDelta[i] += flameDirection[i] * flameStep;
-
-      if(flameDelta[i] > maxVariance) {
-        flameDirection[i] = -1;
-        flameDelta[i] = maxVariance;
-      } else if((0 - flameDelta[i]) < (0 - maxVariance)) {
-        flameDirection[i] = 1;
-        flameDelta[i] = 0 - maxVariance;
-      }
-
-      double hue = constrain(primaryHue + flameDelta[i], 0.0, 1.0);
-      double saturation = primarySaturation;
-      double value = constrain(primaryValue + flameDelta[i], 0.0, 1.0);
-
-      conv.hsvToRgb(hue, saturation, value, rgb);
-      pixel.red = rgb[0];
-      pixel.green = rgb[1];
-      pixel.blue = rgb[2];
-
-      strip->setPixel(i, pixel);
-    }
-  }
+  animation->loop(currentFrame, config, strip);
 }
