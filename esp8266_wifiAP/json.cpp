@@ -57,11 +57,23 @@ String JSONRoot::toString() {
   }
 }
 
+JSONRoot::~JSONRoot() {
+  if(next != NULL) {
+    delete next;
+  }
+}
+
 
 // JSON Integer
 JSONInteger::JSONInteger(String aKey, int aValue) {
   key = aKey;
   value = aValue;
+}
+
+JSONInteger::~JSONInteger() {
+  if(next != NULL) {
+    delete next;
+  }
 }
 
 String JSONInteger::toString() {
@@ -109,6 +121,12 @@ JSONString::JSONString(String aKey, String aValue) {
   value = aValue;
 }
 
+JSONString::~JSONString() {
+  if(next != NULL) {
+    delete next;
+  }
+}
+
 String JSONString::toString() {
   value.replace("\"", "\\\"");
   String nodeString = "\"" + String(key) + "\": \"" + value + "\"";
@@ -124,6 +142,12 @@ String JSONString::toString() {
 JSONBoolean::JSONBoolean(String aKey, bool aValue) {
   key = aKey;
   value = aValue;
+}
+
+JSONBoolean::~JSONBoolean() {
+  if(next != NULL) {
+    delete next;
+  }
 }
 
 String JSONBoolean::toString() {

@@ -27,6 +27,7 @@ public:
 
 class JSONRoot : public JSONNode {
 public:
+  ~JSONRoot();
   String toString();
 };
 
@@ -35,6 +36,7 @@ class JSONInteger : public JSONNode {
   int value;
 
 public:
+  ~JSONInteger();
   JSONInteger(String aKey, int aValue);
   String toString();
 };
@@ -44,6 +46,7 @@ class JSONString : public JSONNode {
   String value;
 
 public:
+  ~JSONString();
   JSONString(String aKey, String aValue);
   String toString();
 };
@@ -53,6 +56,7 @@ class JSONBoolean : public JSONNode {
   bool value;
 
 public:
+  ~JSONBoolean();
   JSONBoolean(String aKey, bool aValue);
   String toString();
 };
