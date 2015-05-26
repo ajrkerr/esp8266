@@ -1,18 +1,21 @@
 #include "pixel_driver.h"
+#define DATA_PIN 9
 
 void PixelDriver::setup(PixelConfig *newConfig) {
   setConfig(newConfig);
-  strip = new Adafruit_NeoPixel(config.numPixels, 8, NEO_GRB + NEO_KHZ800);
-  strip->begin();
+  strip = new WSPixelStrip(DATA_PIN, config.numPixels);
 }
 
 void PixelDriver::setConfig(PixelConfig *newConfig) {
   memcpy(&config, newConfig, sizeof(config));
+
+  strip->resize(config.numPixels);
   currentFrame = millis() / config.frameLength;
 
   free(flameDirection);
-  flameDirection = (double*) malloc(sizeof(double) * config.numPixels);
   free(flameDelta);
+
+  flameDirection = (double*) malloc(sizeof(double) * config.numPixels);
   flameDelta = (double*) malloc(sizeof(double) * config.numPixels);
   
   for(int i = 0; i < config.numPixels; i++) {
@@ -26,7 +29,7 @@ void PixelDriver::loop() {
     currentFrame++;
 
     drawFrame();
-    strip->show();
+    strip->draw();
   }
 }
 
@@ -39,7 +42,7 @@ void PixelDriver::drawFrame() {
       pixel.green = (int)config.primaryColor.green;
       pixel.blue = (int)config.primaryColor.blue;
 
-      setPixel(i, pixel);
+      strip->setPixel(i, pixel);
     }
   } else if(config.type == PIXEL_TRACER) {
     for(int i = 0; i < config.numPixels; i++) { 
@@ -53,7 +56,7 @@ void PixelDriver::drawFrame() {
         pixel.blue = (int)config.secondaryColor.blue;
       }
 
-      setPixel(i, pixel);
+      strip->setPixel(i, pixel);
     }
   } else if(config.type == PIXEL_RAINBOW) {
     double hue;
@@ -74,7 +77,7 @@ void PixelDriver::drawFrame() {
       pixel.green = rgb[1];
       pixel.blue = rgb[2];
 
-      setPixel(i, pixel);
+      strip->setPixel(i, pixel);
     }
   } else if(config.type == PIXEL_FLAME) {
     RGBConverter conv;
@@ -115,20 +118,7 @@ void PixelDriver::drawFrame() {
       pixel.green = rgb[1];
       pixel.blue = rgb[2];
 
-      setPixel(i, pixel);
+      strip->setPixel(i, pixel);
     }
   }
-}
-
-void PixelDriver::setPixel(int position, Pixel pixel) {
-  strip->setPixelColor(position, pixel.red, pixel.green, pixel.blue);
-}
-
-Pixel PixelDriver::getPixel(int position) {
-  uint32_t color = strip->getPixelColor(position);
-  Pixel pixel;
-  pixel.green = 0xFF0000 & color;
-  pixel.red   = 0x00FF00 & color;
-  pixel.blue  = 0x0000FF & color;
-  return pixel;
 }
