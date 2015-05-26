@@ -5,6 +5,12 @@ JSONNode::JSONNode() {
   parent = NULL;
 }
 
+JSONNode::~JSONNode() {
+  if(next != NULL) {
+    delete next;
+  }
+}
+
 JSONNode* JSONNode::integer(String key, int value) {
   next = new JSONInteger(key, value);;
   next->setParent(parent);
@@ -72,6 +78,16 @@ JSONObject::JSONObject(String aKey) {
   key = aKey;
   child = new JSONRoot();
   child->setParent(this);
+}
+
+JSONObject::~JSONObject() {
+  if(next != NULL) {
+    delete next;
+  }
+
+  if(child != NULL) {
+    delete child;
+  }
 }
 
 JSONRoot* JSONObject::getChild() {

@@ -16,7 +16,7 @@ WifiWrapper wifiWrapper;
 PixelConfig pixelConfig;
 HttpController httpController;
 WifiConfig wifiConfig;
-PixelController pixelController(&Serial);
+PixelController pixelController;
 
 char buffer[6];
 
@@ -34,7 +34,7 @@ void setupWifi() {
     useDefaultWifiConfig();
   }
 
-  //wifiWrapper.setup(&wifiConfig);
+  wifiWrapper.setup(&wifiConfig);
 
   if (!wifiWrapper.isConnected()) {
     useDefaultWifiConfig();
