@@ -1,12 +1,12 @@
 #include "buffer.h"
 
-Buffer::Buffer(unsigned int newStructureSize, char *newPreamble, unsigned int newPremableSize) {
+Buffer::Buffer(unsigned int aStructureSize, char *aPreamble, unsigned int aPremableSize) {
   // Setup preamble, copy foreign preamble 
-  preambleSize = newPremableSize;
+  preambleSize = aPremableSize;
   preamble = (char*) malloc(preambleSize);
-  memcpy(preamble, newPreamble, preambleSize);
+  memcpy(preamble, aPreamble, preambleSize);
 
-  structureSize = newStructureSize;
+  structureSize = aStructureSize;
   bufferSize = structureSize + preambleSize * 2 + checksumSize;
 
   // Receiving data from 16bit ESP8266 means that we're receiving an even number of bytes

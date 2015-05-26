@@ -18,7 +18,7 @@ class Buffer {
 
 public:
 
-  Buffer(unsigned int newStructureSize, char *newPreamble, unsigned int newPremableSize);
+  Buffer(unsigned int aStructureSize, char *aPreamble, unsigned int aPremableSize);
   void add(char c);
   bool preambleValid();
   bool checksumValid();
