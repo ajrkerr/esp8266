@@ -5,11 +5,11 @@
 #include "checksum.h"
 
 class PixelStripConfigSender {
+  const char *preamble = "12"; //arbitrary
+  const char *postamble = "21"; //arbitrary
+
 public:
   void send(PixelStripConfig *config) {
-    const char *preamble = "123"; //arbitrary
-    const char *postamble = "321"; //arbitrary
-
     char *buffer = (char*)config;
     
     Serial.write(preamble, strlen(preamble));

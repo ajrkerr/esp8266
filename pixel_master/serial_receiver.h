@@ -11,7 +11,7 @@ class SerialReceiver {
   HardwareSerial *serial;
   Buffer *buffer;
 
-  char *preamble = "123";
+  char *preamble = "12";
 
 public:
   bool changed;
