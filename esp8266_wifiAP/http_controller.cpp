@@ -81,6 +81,29 @@ void HttpController::setupPages() {
     pageBuilder.html(httpServer.client());
   });
 
+httpServer.on("/pixel_config.json", HTTP_POST, [this] () mutable {
+    DEBUG_PRINTLN("POST Pixel Configure");
+
+    pixelConfig.frameLength = httpServer.arg("frameLength").toInt();
+    pixelConfig.numPixels = httpServer.arg("numPixels").toInt();
+    pixelConfig.type = (Animation)httpServer.arg("type").toInt();
+
+    pixelConfig.primaryColor.red = httpServer.arg("primary-red").toInt();
+    pixelConfig.primaryColor.green = httpServer.arg("primary-green").toInt();
+    pixelConfig.primaryColor.blue = httpServer.arg("primary-blue").toInt();
+
+    pixelConfig.secondaryColor.red = httpServer.arg("secondary-red").toInt();
+    pixelConfig.secondaryColor.green = httpServer.arg("secondary-green").toInt();
+    pixelConfig.secondaryColor.blue = httpServer.arg("secondary-blue").toInt();
+
+    DEBUG_PRINTLN("Persisting Data");
+    PixelConfigRepository.persist(&pixelConfig);
+    DEBUG_PRINTLN("Sending Data on Serial");
+    pixelController->send(&pixelConfig);
+
+    httpServer.send(200, "text/html", PixelConfigSerializer.toJSON(&pixelConfig));
+  });
+
   httpServer.on("/resend", HTTP_GET, [this] () {
     pixelController->send(&pixelConfig);
     httpServer.send(200, "text/html", "");

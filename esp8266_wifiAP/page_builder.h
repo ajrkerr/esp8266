@@ -26,14 +26,8 @@ PROGMEM const char javascriptData[] = R"###(
         return new Promise(function(resolve, reject) {
           var client = new XMLHttpRequest();
           var uri = '';
-          if((args != undefined) && (method == 'POST' || method == 'PUT')) {
-            for (key in args) {
-              uri += encodeURIComponent(key) + '=' + encodeURIComponent(escape(args[key])) + '&';
-            }
-            client.open(method, url + '?' + uri, true);
-          } else {
-            client.open(method, url, true);
-          }
+
+          client.open(method, url, true);
 
           client.onreadystatechange = function() {
             if(this.readyState == 4) {
@@ -44,6 +38,15 @@ PROGMEM const char javascriptData[] = R"###(
               }
             }
           };
+
+          if((args != undefined) && (method == 'POST' || method == 'PUT')) {
+            for (key in args) {
+              uri += encodeURIComponent(key) + '=' + encodeURIComponent(escape(args[key])) + '&';
+            }
+
+            client.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+          }
+
           client.send(uri);
         });
       }
@@ -55,35 +58,173 @@ PROGMEM const char javascriptData[] = R"###(
     };
   };
 
-  // document.querySelectorAll
+  function select(context, selector) {
+    if(selector === undefined || selector === null) {
+      selector = context;
+      context = document;
+    }
+
+    return context.querySelectorAll(selector);
+  }
+
+  // Color //
+  function Color(color) {
+    this.red = color.red;
+    this.green = color.green;
+    this.blue = color.blue;
+  }
+  Color.fromHex = function (hex) {
+    if(hex.charAt(0) !== "#" && hex.length === 7) {
+      throw "Invalid hex color.  Should be formatted #RRGGBB.  Got '" + hex + "' instead."
+    }
+
+    function parseHex(hex) { return parseInt(hex, 16); }
+
+    return new Color({
+      "red": parseHex(hex.substring(1, 3)),
+      "blue": parseHex(hex.substring(3, 5)),
+      "green": parseHex(hex.substring(5, 7)),
+    });
+  }
+  Color.prototype.toHtmlColor = function () {
+    var toHex = function (int) {
+      return ((int < 16) ?  '0' + int.toString(16) : int.toString(16));
+    }
+    return '#' + toHex(this.red) + toHex(this.green) + toHex(this.blue);
+  }
+
+
+  // PixelConfig //
+  function PixelConfig() {}
+  PixelConfig.fromJSON = function (json) {
+    var config = new PixelConfig();
+
+    config.frameLength = json.frameLength;
+    config.numPixels = json.numPixels;
+    config.type = json.type;
+
+    config.primaryColor = new Color(json.primaryColor);
+    config.secondaryColor = new Color(json.secondaryColor);
+
+    return config;
+  }
+  PixelConfig.fromFormData = function (formData) {
+    var config = new PixelConfig();
+
+    config.frameLength = formData.frameLength;
+    config.numPixels = formData.numPixels;
+    config.type = formData.type;
+
+    config.primaryColor = Color.fromHex(formData.primaryColor);
+    config.secondaryColor = Color.fromHex(formData.secondaryColor);
+
+    return config;
+  }
+
+  // Pixel Config Serializer
+  function PixelConfigSerializer() {}
+  PixelConfigSerializer.serialize = function(config) {
+    return {
+      "frameLength": config.frameLength,
+      "numPixels": config.numPixels,
+      "type": config.type,
+
+      "primary-red": config.primaryColor.red,
+      "primary-blue": config.primaryColor.blue,
+      "primary-green": config.primaryColor.green,
+
+      "secondary-red": config.secondaryColor.red,
+      "secondary-blue": config.secondaryColor.blue,
+      "secondary-green": config.secondaryColor.green,
+    }
+  }
+
+  // PixelForm //
+  function PixelForm(form, config) {
+    this.config = config;
+    this.form = form;
+
+    this.bindToUI();
+    this.populateForm();
+  }
+  PixelForm.prototype.bindToUI = function () {
+    this.ui = {
+      frameLength: select(this.form, "[name=frameLength]")[0],
+      numPixels: select(this.form, "[name=numPixels]")[0],
+      type: select(this.form, "[name=type]")[0],
+      primaryColor: select(this.form, "[name=primary-color]")[0],
+      secondaryColor: select(this.form, "[name=secondary-color]")[0],
+    }
+
+    var that = this;
+    this.form.addEventListener('submit', function (e) { that.submit(e); });
+  }
+  PixelForm.prototype.populateForm = function () {
+    this.ui.frameLength.value = this.config.frameLength;
+    this.ui.numPixels.value = this.config.numPixels;
+    this.ui.type.selectedIndex = this.config.type;
+
+    if($) {
+      $(this.ui.primaryColor).minicolors('value', this.config.primaryColor.toHtmlColor());
+      $(this.ui.secondaryColor).minicolors('value', this.config.secondaryColor.toHtmlColor());
+    } else {
+      this.ui.primaryColor.value = this.config.primaryColor.toHtmlColor(); 
+      this.ui.secondaryColor.value = this.config.secondaryColor.toHtmlColor();
+    }
+  }
+  PixelForm.prototype.getFormData = function () {
+    var form = this;
+    return Object.keys(this.ui).reduce(function (accumulator, key) {
+      accumulator[key] = form.ui[key].value;
+      return accumulator;
+    }, {})
+  }
+
+  PixelForm.prototype.submit = function (e) {
+    e.preventDefault();
+    
+    var formData = this.getFormData();
+    console.log(formData);
+    var config = PixelConfig.fromFormData(formData);
+    var serializedConfig = PixelConfigSerializer.serialize(config);
+
+    $http('/pixel_config.json')
+      .post(serializedConfig)
+      .then(function () {alert("Success");}, function (e) {alert("Fail"); console.log(e);});
+  }
 
   var callback = {
-    populate_pixel_config : function(data){
-      $("[name=frameLength]").val(data.frameLength);
-      $("[name=numPixels]").val(data.numPixels);
-      $("[name=type]").val(data.type);
-      $("[name=primary-red]").val(data.primaryColor.red);
-      $("[name=primary-green]").val(data.primaryColor.green);
-      $("[name=primary-blue]").val(data.primaryColor.blue);
-      $("[name=secondary-red]").val(data.secondaryColor.red);
-      $("[name=secondary-green]").val(data.secondaryColor.green);
-      $("[name=secondary-blue]").val(data.secondaryColor.blue);
+    buildPixelForm : function(data){
+      var config = PixelConfig.fromJSON(data);
+      var form = document.getElementById('pixel-config-form');
+
+      new PixelForm(form, config);
     },
-    populate_wifi_config : function(data){
-      $("[name=ssid]").val(data.ssid);
-      $("[name=password]").val(data.password);
-      $("[name=hostname]").val(data.hostname);
+
+    buildWifiForm : function(data){
+      select("[name=ssid]")[0].value = data.ssid;
+      select("[name=password]")[0].value = data.password;
+      select("[name=hostname]")[0].value = data.hostname;
     },
     error : function(data){
       alert("Error loading configuration data from ESP8266");
     }
   };
 
-  // Executes the method call
-  $(function () { 
-    $http("/pixel_config.json").get().then(callback.populate_pixel_config, callback.error);
-    $http("/wifi_config.json").get().then(callback.populate_wifi_config, callback.error);
-  });
+
+  function onLoad() {
+    $http("/pixel_config.json").get().then(callback.buildPixelForm, callback.error);
+    $http("/wifi_config.json").get().then(callback.buildWifiForm, callback.error);
+  }
+
+  
+  if (document.readyState != 'loading'){
+    onLoad();
+  } else {
+    document.addEventListener('DOMContentLoaded', onLoad);
+  }
+
+
 )###";
 
 
@@ -94,13 +235,18 @@ PROGMEM const char htmlData[] = R"###(
     <script src='https://code.jquery.com/jquery-2.1.4.min.js'></script>
     <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>
     <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js'></script>
+
+    <link rel='stylesheet' href='https://rawgit.com/claviska/jquery-minicolors/master/jquery.minicolors.css'>
+    <script src='https://rawgit.com/claviska/jquery-minicolors/master/jquery.minicolors.min.js'></script>
+
     <script src='/script.js'></script>
     <script>
       $(function () { 
         $('.nav-tabs a').click(function (e) {
           e.preventDefault();
           $(this).tab('show');
-        })
+        });
+        $('.color-picker').minicolors({theme: 'bootstrap'});
       });
     </script>
   </head>
@@ -114,31 +260,34 @@ PROGMEM const char htmlData[] = R"###(
       </ul>
       <div class='tab-content'>
         <div role='tabpanel' class='tab-pane active' id='pixel-config'>
-          <form action='/pixel_config' method='POST'>
-          <h2>Pixel Config</h2>
-          <div class='form-group'><label for='frameLength'>Frame Length: </label><input class='form-control' name='frameLength' maxlength='32' /></div>
-          <div class='form-group'><label for='numPixels'>Number of Pixels: </label><input class='form-control' name='numPixels' maxlength='32' /></div>
-          <div class='form-group'>
-            <label for='type'>Animation Type: </label>
-            <select class='form-control' name='type'>
-              <option value='0'>Solid</option>
-              <option value='1'>Tracer</option>
-              <option value='2'>Rainbow</option>
-              <option value='3'>Flame</option>
-            </select>
-          </div>
-          <div class='row'><div class='col-xs-6'>
-           <h4>Primary Color</h4>
-           <div class='form-group'><label for='primary-red'>Red: </label><input class='form-control' name='primary-red' /></div>
-           <div class='form-group'><label for='primary-green'>Green: </label><input class='form-control' name='primary-green' /></div>
-           <div class='form-group'><label for='primary-blue'>Blue: </label><input class='form-control' name='primary-blue' /></div>
-          </div><div class='col-xs-6'>
-           <h4>Secondary Color</h4>
-           <div class='form-group'><label for='secondary-red'>Red: </label><input class='form-control' name='secondary-red' /></div>
-           <div class='form-group'><label for='secondary-green'>Green: </label><input class='form-control' name='secondary-green' /></div>
-           <div class='form-group'><label for='secondary-blue'>Blue: </label><input class='form-control' name='secondary-blue' /></div>
-          </div></div>
-          <input class='btn btn-success' type='submit' />
+          <form action='/pixel_config' method='POST' id='pixel-config-form'>
+            <h2>Pixel Config</h2>
+            <div class='form-group'><label for='frameLength'>Frame Length: </label><input class='form-control' name='frameLength' maxlength='32' /></div>
+            <div class='form-group'><label for='numPixels'>Number of Pixels: </label><input class='form-control' name='numPixels' maxlength='32' /></div>
+            <div class='form-group'>
+              <label for='type'>Animation Type: </label>
+              <select class='form-control' name='type'>
+                <option value='0'>Solid</option>
+                <option value='1'>Tracer</option>
+                <option value='2'>Rainbow</option>
+                <option value='3'>Flame</option>
+              </select>
+            </div>
+            <div class='row'>
+              <div class='col-xs-6'>
+                <div class='form-group'>
+                  <label for='primary-red'>Primary Color: </label>
+                  <input class='form-control color-picker' name='primary-color' />
+                </div>
+              </div>
+              <div class='col-xs-6'>
+                <div class='form-group'>
+                  <label for='secondary-red'>Primary Color: </label>
+                  <input class='form-control color-picker' name='secondary-color' />
+                </div>
+              </div>
+            </div>
+            <input class='btn btn-success' type='submit' />
           </form>
         </div>
 
