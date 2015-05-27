@@ -1,7 +1,7 @@
 #include "wifi_wrapper.h"
 
 void WifiWrapper::setup(WifiConfig aConfig) {
-  config = aConfig;
+  setConfig(aConfig);
   connect();
 }
 

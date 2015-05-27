@@ -81,7 +81,7 @@ void HttpController::setupPages() {
     pageBuilder.html(httpServer.client());
   });
 
-httpServer.on("/pixel_strip_config.json", HTTP_POST, [this] () mutable {
+  httpServer.on("/pixel_strip_config.json", HTTP_POST, [this] () mutable {
     DEBUG_PRINTLN("POST Pixel Configure");
 
     pixelStripConfig.frameLength = httpServer.arg("frameLength").toInt();

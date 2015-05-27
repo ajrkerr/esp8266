@@ -5,8 +5,8 @@
 
 #define MAX_WIFI_ATTEMPTS 20
 #define SERIAL_BAUD 9600
-#define DEBUG 0
 
+#include "debug_utils.h"
 #include "wifi_wrapper.h"
 #include "pixel_strip_config.h"
 #include "http_controller.h"
@@ -23,7 +23,7 @@ char buffer[6];
 
 void setup() {
   Serial.begin(SERIAL_BAUD);
-
+  DEBUG_PRINTLN("Serial Enabled");
   setupWifi();
 
   PixelStripConfigRepository.load(&pixelStripConfig);
