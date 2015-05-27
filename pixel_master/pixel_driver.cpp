@@ -3,8 +3,7 @@
 #define DATA_PIN 9
 
 void PixelDriver::setup(PixelStripConfig aConfig) {
-  DEBUG_PRINT("Building PixelDriver");
-  strip = new WSPixelStrip(DATA_PIN, config.numPixels);
+  strip = new WSPixelStrip(DATA_PIN, aConfig.numPixels);
   animation = NULL;
   setConfig(aConfig);
 }

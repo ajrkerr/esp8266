@@ -2,9 +2,6 @@
 
 SerialReceiver::SerialReceiver(HardwareSerial *hardwareSerial) {
   serial = hardwareSerial;
-  DEBUG_PRINTLN("Creating buffer");
-  DEBUG_PRINTLN(String(strlen(preamble)));
-  DEBUG_PRINTLN(String(sizeof(PixelStripConfig)));
   buffer = new Buffer(sizeof(PixelStripConfig), preamble, strlen(preamble));
 }
 

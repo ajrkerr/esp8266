@@ -12,11 +12,11 @@ Buffer::Buffer(unsigned int aStructureSize, char *aPreamble, unsigned int aPrema
   // Receiving data from 16bit ESP8266 means that we're receiving an even number of bytes
   // Last byte is padded out as 0x00
   if(structureSize % 2 != 0) bufferSize++;
-  DEBUG_PRINT("Setting buffersize to: ");
   buffer = (char*) malloc(bufferSize);
+
   dataStart = buffer + preambleSize;
   checksum = buffer + bufferSize - preambleSize - 1;
-
+  
   memset(buffer, 0x00, bufferSize);
 }
 

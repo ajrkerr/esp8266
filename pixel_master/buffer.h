@@ -9,7 +9,7 @@ class Buffer {
   unsigned int structureSize;
   unsigned int preambleSize;
   unsigned int bufferSize;
-  unsigned int checksumSize = 1;
+  const unsigned int checksumSize = 1;
 
   char *buffer;
   char *preamble;
