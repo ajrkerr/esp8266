@@ -34,7 +34,7 @@ PROGMEM const char javascriptData[] = R"###(
               if(this.status == 200) {
                 resolve(JSON.parse(this.response));
               } else{
-                reject({"error":this.statusText});
+                reject({'error':this.statusText});
               }
             }
           };
@@ -44,7 +44,7 @@ PROGMEM const char javascriptData[] = R"###(
               uri += encodeURIComponent(key) + '=' + encodeURIComponent(escape(args[key])) + '&';
             }
 
-            client.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            client.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
           }
 
           client.send(uri);
@@ -74,16 +74,16 @@ PROGMEM const char javascriptData[] = R"###(
     this.blue = color.blue;
   }
   Color.fromHex = function (hex) {
-    if(hex.charAt(0) !== "#" && hex.length === 7) {
-      throw "Invalid hex color.  Should be formatted #RRGGBB.  Got '" + hex + "' instead."
+    if(hex.charAt(0) !== '#' && hex.length === 7) {
+      throw 'Invalid hex color.  Should be formatted #RRGGBB.  Got "' + hex + '" instead.'
     }
 
     function parseHex(hex) { return parseInt(hex, 16); }
 
     return new Color({
-      "red": parseHex(hex.substring(1, 3)),
-      "blue": parseHex(hex.substring(3, 5)),
-      "green": parseHex(hex.substring(5, 7)),
+      'red': parseHex(hex.substring(1, 3)),
+      'blue': parseHex(hex.substring(3, 5)),
+      'green': parseHex(hex.substring(5, 7)),
     });
   }
   Color.prototype.toHtmlColor = function () {
@@ -125,17 +125,17 @@ PROGMEM const char javascriptData[] = R"###(
   function PixelStripConfigSerializer() {}
   PixelStripConfigSerializer.serialize = function(config) {
     return {
-      "frameLength": config.frameLength,
-      "numPixels": config.numPixels,
-      "type": config.type,
+      'frameLength': config.frameLength,
+      'numPixels': config.numPixels,
+      'type': config.type,
 
-      "primary-red": config.primaryColor.red,
-      "primary-blue": config.primaryColor.blue,
-      "primary-green": config.primaryColor.green,
+      'primary-red': config.primaryColor.red,
+      'primary-blue': config.primaryColor.blue,
+      'primary-green': config.primaryColor.green,
 
-      "secondary-red": config.secondaryColor.red,
-      "secondary-blue": config.secondaryColor.blue,
-      "secondary-green": config.secondaryColor.green,
+      'secondary-red': config.secondaryColor.red,
+      'secondary-blue': config.secondaryColor.blue,
+      'secondary-green': config.secondaryColor.green,
     }
   }
 
@@ -149,11 +149,11 @@ PROGMEM const char javascriptData[] = R"###(
   }
   PixelForm.prototype.bindToUI = function () {
     this.ui = {
-      frameLength: select(this.form, "[name=frameLength]")[0],
-      numPixels: select(this.form, "[name=numPixels]")[0],
-      type: select(this.form, "[name=type]")[0],
-      primaryColor: select(this.form, "[name=primary-color]")[0],
-      secondaryColor: select(this.form, "[name=secondary-color]")[0],
+      frameLength: select(this.form, '[name=frameLength]')[0],
+      numPixels: select(this.form, '[name=numPixels]')[0],
+      type: select(this.form, '[name=type]')[0],
+      primaryColor: select(this.form, '[name=primary-color]')[0],
+      secondaryColor: select(this.form, '[name=secondary-color]')[0],
     }
 
     var that = this;
@@ -188,33 +188,50 @@ PROGMEM const char javascriptData[] = R"###(
     var config = PixelStripConfig.fromFormData(formData);
     var serializedConfig = PixelStripConfigSerializer.serialize(config);
 
+    function addBannerFromTemplate(template) {
+      var alertTemplate = document.getElementById(template);
+      var newAlert = alertTemplate.cloneNode(true);
+      newAlert.classList.remove('template');
+
+      var container = document.getElementbyId('container');
+
+      container.insertBefore(newAlert, container.firstChild);
+    }
+
+    function showSuccess() {
+      addBannerFromTemplate('success-template');
+    }
+
+    function showFailure() {
+      addBannerFromTemplate('success-template');
+    }
+
     $http('/pixel_strip_config.json')
       .post(serializedConfig)
-      .then(function () {alert("Success");}, function (e) {alert("Fail"); console.log(e);});
+      .then(showSuccess, showFailure);
   }
 
   var callback = {
     buildPixelForm : function(data){
       var config = PixelStripConfig.fromJSON(data);
       var form = document.getElementById('pixel-config-form');
-
       new PixelForm(form, config);
     },
 
     buildWifiForm : function(data){
-      select("[name=ssid]")[0].value = data.ssid;
-      select("[name=password]")[0].value = data.password;
-      select("[name=hostname]")[0].value = data.hostname;
+      select('[name=ssid]')[0].value = data.ssid;
+      select('[name=password]')[0].value = data.password;
+      select('[name=hostname]')[0].value = data.hostname;
     },
     error : function(data){
-      alert("Error loading configuration data from ESP8266");
+      alert('Error loading configuration data from ESP8266');
     }
   };
 
 
   function onLoad() {
-    $http("/pixel_strip_config.json").get().then(callback.buildPixelForm, callback.error);
-    $http("/wifi_config.json").get().then(callback.buildWifiForm, callback.error);
+    $http('/pixel_strip_config.json').get().then(callback.buildPixelForm, callback.error);
+    $http('/wifi_config.json').get().then(callback.buildWifiForm, callback.error);
   }
 
   
@@ -249,9 +266,19 @@ PROGMEM const char htmlData[] = R"###(
         $('.color-picker').minicolors({theme: 'bootstrap'});
       });
     </script>
+    <style>
+      .template {
+        display: none;
+      }
+    </style>
   </head>
   
-  <body class='container'>
+  <body class='container' id='container'>
+    <div id='success-template' class='template alert alert-success alert-dismissible' role='alert'>
+      <button type='button' class='close' data-dismiss='alert'><span>&times;</span></button>
+      <strong>Success!</strong> The configuration has been updated.
+    </div>
+
     <br />
     <div role='tabpanel'>
       <ul class='nav nav-tabs' role='tablist'>
@@ -282,7 +309,7 @@ PROGMEM const char htmlData[] = R"###(
               </div>
               <div class='col-xs-6'>
                 <div class='form-group'>
-                  <label for='secondary-red'>Primary Color: </label>
+                  <label for='secondary-red'>Secondary Color: </label>
                   <input class='form-control color-picker' name='secondary-color' />
                 </div>
               </div>
