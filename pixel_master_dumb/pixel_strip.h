@@ -26,7 +26,7 @@ public:
     numPixels = aNumPixels;
 
     leds = (CRGB*) malloc(sizeof(CRGB) * numPixels);
-    FastLED.addLeds<WS2812B, 9, RGB>(leds, numPixels);
+    FastLED.addLeds<WS2812B, PIXEL_DRIVER_PIN, RGB>(leds, numPixels);
   }
 
   void setPixel(int position, Pixel pixel) {
@@ -40,7 +40,7 @@ public:
   
   void resize(int aNumPixels) {
     numPixels = aNumPixels;
-    FastLED.addLeds<WS2812B, 9, RGB>(leds, numPixels);
+    FastLED.addLeds<WS2812B, PIXEL_DRIVER_PIN, RGB>(leds, numPixels);
     FastLED.clear();
   }
 };

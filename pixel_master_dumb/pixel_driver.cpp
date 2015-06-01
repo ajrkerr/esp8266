@@ -1,9 +1,8 @@
 #include "pixel_driver.h"
 #include "debug_utils.h"
-#define DATA_PIN 9
 
 void PixelDriver::setup(PixelStripConfig aConfig) {
-  strip = new WSPixelStrip(DATA_PIN, aConfig.numPixels);
+  strip = new WSPixelStrip(PIXEL_DRIVER_PIN, aConfig.numPixels);
   animation = NULL;
   setConfig(aConfig);
 }
